@@ -1,5 +1,5 @@
 {
-  "name": "toeic-practice-web",
+  "name": "toeic-practice-admin",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,15 +9,30 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@heroui/react": "^2.8.2",
+    "@reduxjs/toolkit": "^2.8.2",
+    "@tailwindcss/vite": "^4.1.11",
+    "autoprefixer": "^10.4.21",
+    "axios": "^1.11.0",
+    "clsx": "^2.1.1",
+    "next": "15.4.6",
+    "postcss": "^8.5.6",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "next": "15.4.6"
+    "react-hook-form": "^7.62.0",
+    "react-toastify": "^11.0.5"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
-    "eslint": "^9",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4.1.11",
+    "eslint": "^9.33.0",
     "eslint-config-next": "15.4.6",
-    "@eslint/eslintrc": "^3"
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^16.3.0",
+    "prettier": "^3.6.2",
+    "tailwindcss": "^4.1.11"
   }
 }
