@@ -4,11 +4,12 @@ import { useRouter } from 'next/navigation';
 import { Button, Checkbox, Input } from '@nextui-org/react';
 import { set, useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
-import authServices from '@/services/auth.service';
+import { useAuth } from '@/contexts/AuthContext';
 // import CradleLoader from '@/components/common/Loading/CradleLoader';
 
 const SignUpForm = () => {
   const router = useRouter();
+  const { register: registerUser } = useAuth();
   const {
     register,
     handleSubmit,
@@ -26,17 +27,15 @@ const SignUpForm = () => {
   const handleRegister = async (data) => {
     setLoading(true);
     try {
-      const res = await authServices.register({
+      await registerUser({
         name: data.name,
         email: data.email,
         password: data.password,
       });
-      if (res) {
-        toast.success('Đăng ký tài khoản thành công!');
-        timeoutRef.current = setTimeout(() => {
-          router.push('/login');
-        }, 1500);
-      }
+      toast.success('Đăng ký tài khoản thành công!');
+      timeoutRef.current = setTimeout(() => {
+        router.push('/login');
+      }, 1500);
     } catch (error) {
       toast.error('Đăng ký thất bại. Vui lòng thử lại.');
     } finally {

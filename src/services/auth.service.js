@@ -1,36 +1,46 @@
+import apiClient from '@/utils/axios';
+import { API_ENDPOINTS } from '@/config/api';
+
 // Auth service for authentication operations
 class AuthService {
   constructor() {
-    this.baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+    this.baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
   }
 
   // Login user
   async login(credentials) {
     try {
-      // Mock login for now - replace with actual API call
-      if (credentials.email === 'admin@toeic.com' && credentials.password === 'admin123') {
-        const mockResponse = {
-          access_token: 'mock_access_token_' + Date.now(),
-          refresh_token: 'mock_refresh_token_' + Date.now(),
-          user: {
-            id: 1,
-            name: 'Admin User',
-            email: 'admin@toeic.com',
-            role: 'admin'
-          }
-        };
-        
-        // Store tokens in localStorage
-        localStorage.setItem('access_token', mockResponse.access_token);
-        localStorage.setItem('refresh_token', mockResponse.refresh_token);
-        localStorage.setItem('user', JSON.stringify(mockResponse.user));
-        
-        return mockResponse;
-      } else {
-        throw new Error('Invalid credentials');
-      }
+      const response = await apiClient.post(API_ENDPOINTS.AUTH.LOGIN, {
+        email: credentials.email,
+        password: credentials.password
+      });
+
+      const { access_token, refresh_token, user } = response.data;
+      
+      // Store tokens in localStorage
+      localStorage.setItem('access_token', access_token);
+      localStorage.setItem('refresh_token', refresh_token);
+      localStorage.setItem('user', JSON.stringify(user));
+      
+      return response.data;
     } catch (error) {
       console.error('Login error:', error);
+      throw error;
+    }
+  }
+
+  // Register user
+  async register(userData) {
+    try {
+      const response = await apiClient.post(API_ENDPOINTS.AUTH.REGISTER, {
+        name: userData.name,
+        email: userData.email,
+        password: userData.password
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error('Register error:', error);
       throw error;
     }
   }
@@ -77,7 +87,7 @@ class AuthService {
     return localStorage.getItem('access_token');
   }
 
-  // Refresh token (mock implementation)
+  // Refresh token
   async refreshToken() {
     try {
       const refreshToken = localStorage.getItem('refresh_token');
@@ -85,13 +95,18 @@ class AuthService {
         throw new Error('No refresh token available');
       }
 
-      // Mock refresh - replace with actual API call
-      const newAccessToken = 'refreshed_access_token_' + Date.now();
-      localStorage.setItem('access_token', newAccessToken);
+      const response = await apiClient.post(API_ENDPOINTS.AUTH.REFRESH, {
+        refresh_token: refreshToken
+      });
+
+      const { access_token } = response.data;
+      localStorage.setItem('access_token', access_token);
       
-      return newAccessToken;
+      return access_token;
     } catch (error) {
       console.error('Refresh token error:', error);
+      // If refresh fails, clear all auth data
+      this.logout();
       throw error;
     }
   }
