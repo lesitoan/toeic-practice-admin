@@ -1,15 +1,30 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
 import { 
   Bars3Icon, 
   MagnifyingGlassIcon, 
   BellIcon,
   ChevronDownIcon
 } from '@heroicons/react/24/outline';
+import authService from '@/services/auth.service';
 
 export default function Navbar({ onMenuClick }) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    try {
+      await authService.logout();
+      toast.success('Đăng xuất thành công!');
+      router.push('/login');
+    } catch (error) {
+      console.error('Sign out error:', error);
+      toast.error('Có lỗi xảy ra khi đăng xuất');
+    }
+  };
 
   return (
     <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
@@ -85,12 +100,12 @@ export default function Navbar({ onMenuClick }) {
               >
                 Settings
               </a>
-              <a
-                href="#"
-                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              <button
+                onClick={handleSignOut}
+                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
               >
                 Sign out
-              </a>
+              </button>
             </div>
           )}
         </div>

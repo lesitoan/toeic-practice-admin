@@ -1,6 +1,5 @@
-import axios from 'axios';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+import apiClient from '@/utils/axios';
+import { API_ENDPOINTS } from '@/config/api';
 
 // Mock data for development
 const mockVocabularies = [
@@ -72,39 +71,18 @@ class VocabularyService {
   // Get all vocabularies
   async getAllVocabularies(params = {}) {
     try {
-      // For now, return mock data
-      // In production, this would be: const response = await axios.get(`${API_BASE_URL}/vocabularies`, { params });
+      const response = await apiClient.get(API_ENDPOINTS.VOCABULARY, {
+        params: {
+          page: params.page || 1,
+          limit: params.limit || 10,
+          search: params.search,
+          category: params.category,
+          difficulty: params.difficulty,
+          partOfSpeech: params.partOfSpeech
+        }
+      });
       
-      let filteredData = [...mockVocabularies];
-      
-      // Apply filters
-      if (params.search) {
-        const searchTerm = params.search.toLowerCase();
-        filteredData = filteredData.filter(vocab => 
-          vocab.word.toLowerCase().includes(searchTerm) ||
-          vocab.definition.toLowerCase().includes(searchTerm) ||
-          vocab.example.toLowerCase().includes(searchTerm)
-        );
-      }
-      
-      if (params.difficulty) {
-        filteredData = filteredData.filter(vocab => vocab.difficulty === params.difficulty);
-      }
-      
-      if (params.category) {
-        filteredData = filteredData.filter(vocab => vocab.category === params.category);
-      }
-      
-      if (params.partOfSpeech) {
-        filteredData = filteredData.filter(vocab => vocab.partOfSpeech === params.partOfSpeech);
-      }
-      
-      return {
-        data: filteredData,
-        total: filteredData.length,
-        page: params.page || 1,
-        limit: params.limit || 10
-      };
+      return response.data;
     } catch (error) {
       console.error('Error fetching vocabularies:', error);
       throw error;
@@ -114,15 +92,8 @@ class VocabularyService {
   // Get vocabulary by ID
   async getVocabularyById(id) {
     try {
-      // For now, return mock data
-      // In production, this would be: const response = await axios.get(`${API_BASE_URL}/vocabularies/${id}`);
-      
-      const vocabulary = mockVocabularies.find(vocab => vocab.id === parseInt(id));
-      if (!vocabulary) {
-        throw new Error('Vocabulary not found');
-      }
-      
-      return vocabulary;
+      const response = await apiClient.get(`${API_ENDPOINTS.VOCABULARY}/${id}`);
+      return response.data;
     } catch (error) {
       console.error('Error fetching vocabulary:', error);
       throw error;
@@ -132,19 +103,8 @@ class VocabularyService {
   // Create new vocabulary
   async createVocabulary(vocabularyData) {
     try {
-      // For now, add to mock data
-      // In production, this would be: const response = await axios.post(`${API_BASE_URL}/vocabularies`, vocabularyData);
-      
-      const newVocabulary = {
-        id: nextId++,
-        ...vocabularyData,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      
-      mockVocabularies.push(newVocabulary);
-      
-      return newVocabulary;
+      const response = await apiClient.post(API_ENDPOINTS.VOCABULARY, vocabularyData);
+      return response.data;
     } catch (error) {
       console.error('Error creating vocabulary:', error);
       throw error;
@@ -154,21 +114,8 @@ class VocabularyService {
   // Update vocabulary
   async updateVocabulary(id, vocabularyData) {
     try {
-      // For now, update mock data
-      // In production, this would be: const response = await axios.put(`${API_BASE_URL}/vocabularies/${id}`, vocabularyData);
-      
-      const index = mockVocabularies.findIndex(vocab => vocab.id === parseInt(id));
-      if (index === -1) {
-        throw new Error('Vocabulary not found');
-      }
-      
-      mockVocabularies[index] = {
-        ...mockVocabularies[index],
-        ...vocabularyData,
-        updatedAt: new Date().toISOString()
-      };
-      
-      return mockVocabularies[index];
+      const response = await apiClient.put(`${API_ENDPOINTS.VOCABULARY}/${id}`, vocabularyData);
+      return response.data;
     } catch (error) {
       console.error('Error updating vocabulary:', error);
       throw error;
@@ -178,16 +125,8 @@ class VocabularyService {
   // Delete vocabulary
   async deleteVocabulary(id) {
     try {
-      // For now, remove from mock data
-      // In production, this would be: const response = await axios.delete(`${API_BASE_URL}/vocabularies/${id}`);
-      
-      const index = mockVocabularies.findIndex(vocab => vocab.id === parseInt(id));
-      if (index === -1) {
-        throw new Error('Vocabulary not found');
-      }
-      
-      const deletedVocabulary = mockVocabularies.splice(index, 1)[0];
-      return deletedVocabulary;
+      await apiClient.delete(`${API_ENDPOINTS.VOCABULARY}/${id}`);
+      return { success: true };
     } catch (error) {
       console.error('Error deleting vocabulary:', error);
       throw error;
@@ -197,16 +136,8 @@ class VocabularyService {
   // Get vocabulary categories
   async getCategories() {
     try {
-      // Mock categories
-      return [
-        { value: 'general', label: 'General' },
-        { value: 'business', label: 'Business' },
-        { value: 'academic', label: 'Academic' },
-        { value: 'travel', label: 'Travel' },
-        { value: 'technology', label: 'Technology' },
-        { value: 'health', label: 'Health' },
-        { value: 'education', label: 'Education' }
-      ];
+      const response = await apiClient.get(`${API_ENDPOINTS.VOCABULARY}/categories`);
+      return response.data;
     } catch (error) {
       console.error('Error fetching categories:', error);
       throw error;
@@ -216,11 +147,8 @@ class VocabularyService {
   // Get difficulty levels
   async getDifficultyLevels() {
     try {
-      return [
-        { value: 'beginner', label: 'Beginner' },
-        { value: 'intermediate', label: 'Intermediate' },
-        { value: 'advanced', label: 'Advanced' }
-      ];
+      const response = await apiClient.get(`${API_ENDPOINTS.VOCABULARY}/difficulty-levels`);
+      return response.data;
     } catch (error) {
       console.error('Error fetching difficulty levels:', error);
       throw error;
@@ -230,16 +158,8 @@ class VocabularyService {
   // Get parts of speech
   async getPartsOfSpeech() {
     try {
-      return [
-        { value: 'noun', label: 'Noun' },
-        { value: 'verb', label: 'Verb' },
-        { value: 'adjective', label: 'Adjective' },
-        { value: 'adverb', label: 'Adverb' },
-        { value: 'preposition', label: 'Preposition' },
-        { value: 'conjunction', label: 'Conjunction' },
-        { value: 'pronoun', label: 'Pronoun' },
-        { value: 'interjection', label: 'Interjection' }
-      ];
+      const response = await apiClient.get(`${API_ENDPOINTS.VOCABULARY}/parts-of-speech`);
+      return response.data;
     } catch (error) {
       console.error('Error fetching parts of speech:', error);
       throw error;
