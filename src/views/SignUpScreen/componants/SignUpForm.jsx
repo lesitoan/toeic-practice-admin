@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { Eye, EyeOff, Facebook, LucideYoutube } from 'lucide-react';
+import { Eye, EyeOff, Facebook, LucideYoutube, Upload } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { Button, Checkbox, Input } from '@nextui-org/react';
+import { Button, Checkbox, Input, Select, SelectItem } from '@nextui-org/react';
 import { set, useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/contexts/AuthContext';
@@ -9,35 +9,92 @@ import { useAuth } from '@/contexts/AuthContext';
 
 const SignUpForm = () => {
   const router = useRouter();
-  const { register: registerUser } = useAuth();
+  const { register: registerUser, googleLogin } = useAuth();
   const {
     register,
     handleSubmit,
     formState: { errors },
     watch,
+    setValue,
   } = useForm();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState(null);
   const timeoutRef = useRef(null);
 
   const password = watch('password');
   const agreeToTerms = watch('agreeToTerms');
 
+  // Gender options
+  const genderOptions = [
+    { key: 1, label: 'Nam' },
+    { key: 2, label: 'Nữ' },
+    { key: 3, label: 'Khác' }
+  ];
+
+  // Handle avatar upload
+  const handleAvatarUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setAvatarPreview(e.target.result);
+        setValue('avatar', e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      await googleLogin();
+    } catch (error) {
+      toast.error('Google đăng nhập thất bại. Vui lòng thử lại.');
+    }
+  };
+
   const handleRegister = async (data) => {
     setLoading(true);
     try {
       await registerUser({
+        role_id: data.role_id || 1,
         name: data.name,
         email: data.email,
+        gender: data.gender || 3,
+        age: data.age,
+        avatar: data.avatar || "",
         password: data.password,
+        extra_fields: data.extra_fields || {}
       });
       toast.success('Đăng ký tài khoản thành công!');
       timeoutRef.current = setTimeout(() => {
         router.push('/login');
       }, 1500);
     } catch (error) {
-      toast.error('Đăng ký thất bại. Vui lòng thử lại.');
+      console.error('Registration error:', error);
+      
+      if (error.response?.status === 400) {
+        // Handle 400 errors (like "Email is already registered")
+        const errorMessage = error.response.data?.errors || error.response.data?.message || 'Registration failed';
+        if (errorMessage.includes('already registered')) {
+          toast.error('Email đã được sử dụng. Vui lòng thử email khác hoặc đăng nhập.');
+        } else {
+          toast.error(errorMessage);
+        }
+      } else if (error.response?.status === 422) {
+        // Handle validation errors
+        const validationErrors = error.response.data.detail;
+        if (Array.isArray(validationErrors)) {
+          validationErrors.forEach(err => {
+            toast.error(`${err.loc.join('.')}: ${err.msg}`);
+          });
+        } else {
+          toast.error('Validation error: Please check your input');
+        }
+      } else {
+        toast.error('Đăng ký thất bại. Vui lòng thử lại.');
+      }
     } finally {
       setLoading(false);
     }
@@ -108,6 +165,75 @@ const SignUpForm = () => {
               })}
             />
             <p className="text-red-500 text-sm mt-2">{errors.email?.message}</p>
+          </div>
+
+          {/* Gender Select */}
+          <div>
+            <Select
+              name="gender"
+              placeholder="Chọn giới tính"
+              color="primary"
+              classNames={{
+                base: 'h-12',
+                trigger: `!h-[48px] !rounded-lg ${errors.gender && '!border-2 !border-solid !border-red-500 bg-red-100'}`,
+              }}
+              {...register('gender', { required: 'Giới tính là bắt buộc' })}
+            >
+              {genderOptions.map((option) => (
+                <SelectItem key={option.key} value={option.key}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </Select>
+            <p className="text-red-500 text-sm mt-2">{errors.gender?.message}</p>
+          </div>
+
+          {/* Age Input */}
+          <div>
+            <Input
+              name="age"
+              placeholder="Ngày sinh"
+              type="date"
+              color="primary"
+              classNames={{
+                base: 'h-12',
+                input: `text-sm ${errors.age && '!text-red-500 !placeholder-red-500'}`,
+                inputWrapper: `!h-[300px] !rounded-lg ${errors.age && '!border-2 !border-solid !border-red-500 bg-red-100'}`,
+              }}
+              {...register('age', { required: 'Ngày sinh là bắt buộc' })}
+            />
+            <p className="text-red-500 text-sm mt-2">{errors.age?.message}</p>
+          </div>
+
+          {/* Avatar Upload */}
+          <div>
+            <div className="flex items-center space-x-4">
+              <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                {avatarPreview ? (
+                  <img src={avatarPreview} alt="Avatar preview" className="w-full h-full object-cover" />
+                ) : (
+                  <Upload size={24} className="text-gray-400" />
+                )}
+              </div>
+              <div className="flex-1">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarUpload}
+                  className="hidden"
+                  id="avatar-upload"
+                />
+                <Button
+                  as="label"
+                  htmlFor="avatar-upload"
+                  color="default"
+                  variant="bordered"
+                  className="w-full rounded-lg h-12"
+                >
+                  Tải lên ảnh đại diện
+                </Button>
+              </div>
+            </div>
           </div>
 
           {/* Password Input */}
@@ -217,8 +343,9 @@ const SignUpForm = () => {
             <Button
               color="default"
               className="w-full rounded-lg h-12 shadow-md cursor-pointer bg-orange-400"
-              type="submit"
-              disabled={!agreeToTerms}
+              type="button"
+              onClick={handleGoogleLogin}
+              disabled={loading}
             >
               Google
             </Button>

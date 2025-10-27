@@ -23,7 +23,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <AuthProvider>
+       <AuthProvider>
           {children}
         </AuthProvider>
         <ToastContainer position="top-right" autoClose={3000} />

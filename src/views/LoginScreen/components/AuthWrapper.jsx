@@ -4,7 +4,7 @@ import { WEB_APP_NAME } from '@/constants/common';
 import { Image } from '@nextui-org/react';
 
 export default function AuthWrapper({ children }) {
-  const router = useRouter();
+  const router = useRouter();  
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">

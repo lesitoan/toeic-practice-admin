@@ -23,6 +23,9 @@ export const AuthProvider = ({ children }) => {
     // Check if user is authenticated on mount
     const checkAuth = () => {
       try {
+        // Clean up any invalid data first
+        authService.cleanupInvalidData();
+        
         const currentUser = authService.getCurrentUser();
         const isAuthenticated = authService.isAuthenticated();
         
@@ -46,10 +49,29 @@ export const AuthProvider = ({ children }) => {
     try {
       setIsLoading(true);
       const response = await authService.login(credentials);
-      setUser(response.user);
+      
+      // If user data wasn't fetched during login, try to get it from localStorage
+      let user = response.user;
+      if (!user) {
+        user = authService.getCurrentUser();
+      }
+      
+      setUser(user);
       return response;
     } catch (error) {
       console.error('Login error:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const googleLogin = async () => {
+    try {
+      setIsLoading(true);
+      await authService.googleLogin();
+    } catch (error) {
+      console.error('Google login error:', error);
       throw error;
     } finally {
       setIsLoading(false);
@@ -66,6 +88,17 @@ export const AuthProvider = ({ children }) => {
       throw error;
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const refreshUser = async () => {
+    try {
+      const user = await authService.refreshUserData();
+      setUser(user);
+      return user;
+    } catch (error) {
+      console.error('Refresh user error:', error);
+      throw error;
     }
   };
 
@@ -87,8 +120,10 @@ export const AuthProvider = ({ children }) => {
     user,
     isLoading,
     login,
+    googleLogin,
     register,
     logout,
+    refreshUser,
     isAuthenticated: !!user
   };
 

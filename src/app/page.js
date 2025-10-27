@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -13,7 +13,7 @@ export default function Home() {
       if (isAuthenticated) {
         router.push('/dashboard');
       } else {
-        router.push('/login');
+        router.push('/dashboard');
       }
     }
   }, [isAuthenticated, isLoading, router]);
@@ -32,3 +32,8 @@ export default function Home() {
     </div>
   );
 }
+
+
+// hẹ hẹ xóa dưới mới dùng trên 
+
+

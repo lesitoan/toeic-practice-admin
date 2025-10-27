@@ -8,9 +8,9 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/contexts/AuthContext';
 
-const SignupForm = () => {
+const LoginForm = () => {
   const router = useRouter();
-  const { login, isLoading } = useAuth();
+  const { login, googleLogin, isLoading } = useAuth();
   const {
     register,
     handleSubmit,
@@ -20,30 +20,12 @@ const SignupForm = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
 
-  // Hàm test để nhập đại email và password luôn đúng
-  const handleTestLogin = () => {
-    const testData = {
-      email: 'admin@toeic.com',
-      password: 'admin123'
-    };
-    
-    // Tự động điền form với dữ liệu test
-    const emailInput = document.querySelector('input[name="email"]');
-    const passwordInput = document.querySelector('input[name="password"]');
-    
-    if (emailInput && passwordInput) {
-      emailInput.value = testData.email;
-      passwordInput.value = testData.password;
-      
-      // Trigger change events để form validation hoạt động
-      emailInput.dispatchEvent(new Event('input', { bubbles: true }));
-      passwordInput.dispatchEvent(new Event('input', { bubbles: true }));
+  const handleGoogleLogin = async () => {
+    try {
+      await googleLogin();
+    } catch (error) {
+      toast.error('Google đăng nhập thất bại. Vui lòng thử lại.');
     }
-    
-    // Tự động submit form
-    setTimeout(() => {
-      handleLogin(testData);
-    }, 100);
   };
 
   const handleLogin = async (data) => {
@@ -165,7 +147,9 @@ const SignupForm = () => {
           <Button
             color="default"
             className="w-full rounded-lg h-12 shadow-md cursor-pointer bg-orange-400"
-            type="submit"
+            type="button"
+            onClick={handleGoogleLogin}
+            disabled={isLoading}
           >
             Google
           </Button>
@@ -184,4 +168,4 @@ const SignupForm = () => {
   );
 };
 
-export default SignupForm;
+export default LoginForm;

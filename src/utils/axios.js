@@ -1,14 +1,16 @@
 import axios from 'axios';
-import { API_ENDPOINTS } from '@/config/api';
+import { API_ENDPOINTS, default as API_BASE_URL } from '@/config/api';
 
-// Create axios instance
 const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api',
+  baseURL: API_BASE_URL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
+console.log('🚀 API Base URL:', API_BASE_URL);
+console.log('🚀 Register Endpoint:', API_ENDPOINTS.AUTH.REGISTER);
+
 
 // Request interceptor to add auth token
 apiClient.interceptors.request.use(
@@ -39,9 +41,8 @@ apiClient.interceptors.response.use(
       try {
         const refreshToken = localStorage.getItem('refresh_token');
         if (refreshToken) {
-          const response = await axios.post(API_ENDPOINTS.AUTH.REFRESH, {
-            refresh_token: refreshToken
-          });
+          // Use query parameter format as specified in the API documentation
+          const response = await axios.post(`${API_ENDPOINTS.AUTH.REFRESH}?refresh_token=${refreshToken}`);
 
           const { access_token } = response.data;
           localStorage.setItem('access_token', access_token);
