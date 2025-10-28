@@ -39,8 +39,28 @@ const LoginForm = () => {
       toast.success('Đăng nhập thành công!');
       router.push('/dashboard');
     } catch (error) {
-      console.log('Login error:', error);
-      toast.error('Đăng nhập thất bại. Vui lòng thử lại.');
+      console.error('Login error in form:', error);
+      
+      // Provide more specific error messages to the user
+      let errorMessage = 'Đăng nhập thất bại. Vui lòng thử lại.';
+      
+      if (error?.message) {
+        if (error.message.includes('Invalid email or password')) {
+          errorMessage = 'Email hoặc mật khẩu không đúng.';
+        } else if (error.message.includes('Login endpoint not found')) {
+          errorMessage = 'Lỗi cấu hình API. Vui lòng liên hệ quản trị viên.';
+        } else if (error.message.includes('Network error')) {
+          errorMessage = 'Lỗi kết nối. Vui lòng kiểm tra internet và thử lại.';
+        } else if (error.message.includes('Server error')) {
+          errorMessage = 'Lỗi máy chủ. Vui lòng thử lại sau.';
+        } else if (error.message.includes('timeout')) {
+          errorMessage = 'Hết thời gian chờ. Vui lòng thử lại.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      toast.error(errorMessage);
     }
   };
 
