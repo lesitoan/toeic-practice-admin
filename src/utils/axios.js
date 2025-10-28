@@ -15,13 +15,25 @@ console.log('🚀 Register Endpoint:', API_ENDPOINTS.AUTH.REGISTER);
 // Request interceptor to add auth token
 apiClient.interceptors.request.use(
   (config) => {
+    console.log('Axios request interceptor - Making request:', {
+      method: config.method,
+      url: config.url,
+      baseURL: config.baseURL,
+      fullURL: config.url.startsWith('http') ? config.url : `${config.baseURL}${config.url}`,
+      originalURL: config.url
+    });
+    
     const token = localStorage.getItem('access_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log('Added auth token to request');
+    } else {
+      console.log('No auth token found for request');
     }
     return config;
   },
   (error) => {
+    console.log('Axios request interceptor - Error:', error);
     return Promise.reject(error);
   }
 );
@@ -29,9 +41,19 @@ apiClient.interceptors.request.use(
 // Response interceptor to handle token refresh
 apiClient.interceptors.response.use(
   (response) => {
+    console.log('Axios response interceptor - Success:', response.status, response.config.url);
     return response;
   },
   async (error) => {
+    console.log('Axios response interceptor - Error caught:', {
+      message: error?.message,
+      status: error?.response?.status,
+      statusText: error?.response?.statusText,
+      url: error?.config?.url,
+      method: error?.config?.method,
+      data: error?.response?.data
+    });
+    
     const originalRequest = error.config;
 
     // If error is 401 and we haven't already tried to refresh

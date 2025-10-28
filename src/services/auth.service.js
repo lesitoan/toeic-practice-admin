@@ -10,21 +10,69 @@ class AuthService {
 
   // Login user
   async login(credentials) {
+    console.log('=== LOGIN START ===');
+    console.log('Credentials received:', credentials);
+    
+    try {
+      return await this._performLogin(credentials);
+    } catch (outerError) {
+      console.log('=== OUTER ERROR CAUGHT ===');
+      console.log('Outer error:', outerError);
+      console.log('Outer error type:', typeof outerError);
+      console.log('Outer error keys:', outerError ? Object.keys(outerError) : 'No keys');
+      throw outerError;
+    }
+  }
+
+  // Internal login method
+  async _performLogin(credentials) {
     try {
       // Validate credentials parameter
       if (!credentials) {
+        console.log('ERROR: No credentials provided');
         throw new Error('No credentials provided');
       }
       
       if (!credentials.email || !credentials.password) {
+        console.log('ERROR: Missing email or password');
         throw new Error('Email and password are required');
       }
       
       console.log('Attempting login with credentials:', credentials.email);
+      console.log('API Endpoint:', API_ENDPOINTS.AUTH.LOGIN);
+      console.log('API Base URL:', API_BASE_URL);
+      console.log('Full constructed URL:', API_ENDPOINTS.AUTH.LOGIN);
+      console.log('Environment API URL:', process.env.NEXT_PUBLIC_API_URL);
+      
+      // Test if the endpoint is reachable first
+      try {
+        console.log('Testing API connectivity...');
+        const testResponse = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
+          method: 'OPTIONS',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        console.log('API connectivity test result:', testResponse.status);
+      } catch (connectError) {
+        console.log('API connectivity test failed:', connectError);
+      }
+      
+      console.log('Making login request...');
+      console.log('Request URL:', API_ENDPOINTS.AUTH.LOGIN);
+      console.log('Request payload:', { email: credentials.email, password: '[HIDDEN]' });
       
       const response = await apiClient.post(API_ENDPOINTS.AUTH.LOGIN, {
         email: credentials.email,
         password: credentials.password
+      });
+      
+      console.log('Login response received:', {
+        status: response.status,
+        statusText: response.statusText,
+        hasData: !!response.data,
+        dataKeys: response.data ? Object.keys(response.data) : 'No data',
+        fullResponse: response
       });
 
       const { access_token, refresh_token, type } = response.data;
@@ -37,6 +85,8 @@ class AuthService {
       // Store tokens in localStorage
       localStorage.setItem('access_token', access_token);
       localStorage.setItem('refresh_token', refresh_token);
+      
+
       
       // Fetch user data after successful login (optional)
       let user = null;
@@ -70,33 +120,54 @@ class AuthService {
         user
       };
     } catch (error) {
-      console.error("Login error details:", {
-        message: error.message,
-        code: error.code,
-        responseData: error.response ? error.response.data : null,
-        status: error.response ? error.response.status : null,
-        url: error.config ? error.config.url : null,
-        credentials: credentials ? { email: credentials.email } : 'No credentials provided'
-      });
+      console.log('=== LOGIN ERROR CAUGHT ===');
+      console.log('Raw error object:', error);
+      console.log('Error type:', typeof error);
+      console.log('Error constructor:', error?.constructor?.name);
+      console.log('Error keys:', error ? Object.keys(error) : 'No keys');
+      
+      // Enhanced error logging with better error object handling
+      const errorDetails = {
+        message: error?.message || 'Unknown error',
+        code: error?.code || null,
+        responseData: error?.response?.data || null,
+        status: error?.response?.status || null,
+        statusText: error?.response?.statusText || null,
+        url: error?.config?.url || null,
+        method: error?.config?.method || null,
+        credentials: credentials ? { email: credentials.email } : 'No credentials provided',
+        stack: error?.stack || null,
+        name: error?.name || null,
+        toString: error?.toString ? error.toString() : null
+      };
+      
+      console.error("Login error details:", errorDetails);
+      console.log('=== END ERROR LOGGING ===');
       
       // Provide more specific error messages
-      if (error.response) {
+      if (error?.response) {
         const status = error.response.status;
         const data = error.response.data;
         
         if (status === 401) {
           throw new Error('Invalid email or password');
+        } else if (status === 404) {
+          throw new Error('Login endpoint not found. Please check API configuration.');
         } else if (status === 422) {
           throw new Error(data?.message || 'Invalid input data');
         } else if (status >= 500) {
           throw new Error('Server error. Please try again later.');
         } else {
-          throw new Error(data?.message || 'Login failed');
+          throw new Error(data?.message || `Login failed with status ${status}`);
         }
-      } else if (error.message.includes('No access token') || error.message.includes('No user data')) {
+      } else if (error?.message && (error.message.includes('No access token') || error.message.includes('No user data'))) {
         throw error; // Re-throw our validation errors
-      } else {
+      } else if (error?.code === 'NETWORK_ERROR' || error?.message?.includes('Network Error')) {
         throw new Error('Network error. Please check your connection.');
+      } else if (error?.code === 'ECONNABORTED' || error?.message?.includes('timeout')) {
+        throw new Error('Request timeout. Please try again.');
+      } else {
+        throw new Error(error?.message || 'Login failed. Please try again.');
       }
     }
   }

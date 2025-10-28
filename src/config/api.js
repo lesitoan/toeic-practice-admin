@@ -1,8 +1,8 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://backendtoiecpracticeproduction.up.railway.app/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://backendtoiecpracticeproduction.up.railway.app/';
 
 export const API_ENDPOINTS = {
   AUTH: {
-    LOGIN: `${API_BASE_URL}/v1/authentication/login`,
+    LOGIN: `${API_BASE_URL}api/v1/authentication/login`,
     REGISTER: `${API_BASE_URL}/v1/register`,
     LOGOUT: `${API_BASE_URL}/v1/authentication/logout`,
     REFRESH: `${API_BASE_URL}/v1/authentication/token`,
