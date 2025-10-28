@@ -237,11 +237,13 @@ class AuthService {
       const decoded = this.decodeJWT(accessToken);
       if (!decoded) return null;
       
+      console.log('Decoded JWT token:', decoded);
+      
       return {
         id: decoded.subID,
         email: decoded.subEmail,
         name: decoded.subName,
-        roleID: decoded.roleID,
+        role_id: decoded.roleID,
         // Add other fields as needed
       };
     } catch (error) {
@@ -312,8 +314,15 @@ class AuthService {
   // Get current user from API
   async getCurrentUserFromAPI() {
     try {
-      // Try the users information endpoint first
-      const response = await apiClient.get(API_ENDPOINTS.USERS.LIST);
+      console.log('Getting current user from API endpoint:', API_ENDPOINTS.AUTH.CURRENT_USER);
+      
+      const response = await apiClient.get(API_ENDPOINTS.AUTH.CURRENT_USER);
+      
+      console.log('Current user API response:', {
+        status: response.status,
+        data: response.data
+      });
+      
       return response.data;
     } catch (error) {
       console.error('Get current user from API error:', {
@@ -324,9 +333,11 @@ class AuthService {
         url: error.config?.url
       });
       
-      // If 403, the endpoint might not be accessible or might not exist
-      if (error.response?.status === 403) {
-        console.warn('User information endpoint returned 403 - endpoint might not be available or accessible');
+      // If 401, token might be invalid or expired
+      if (error.response?.status === 401) {
+        console.warn('User information endpoint returned 401 - token might be invalid or expired');
+      } else if (error.response?.status === 403) {
+        console.warn('User information endpoint returned 403 - endpoint might not be accessible');
       }
       
       throw error;

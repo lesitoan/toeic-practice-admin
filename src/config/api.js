@@ -7,6 +7,7 @@ export const API_ENDPOINTS = {
     LOGOUT: `${API_BASE_URL}api/v1/authentication/logout`,
     REFRESH: `${API_BASE_URL}api/v1/authentication/token`,
     GOOGLE_LOGIN: `${API_BASE_URL}api/v1/authentication/login/google`,
+    CURRENT_USER: `${API_BASE_URL}api/v1/authentication/information/me`,
   },
   USERS: {
     LIST: `${API_BASE_URL}api/v1/users/information`,
