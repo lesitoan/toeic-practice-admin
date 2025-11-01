@@ -77,7 +77,7 @@ export default function Navbar({ onMenuClick }) {
           >
             <img
               className="h-8 w-8 rounded-full bg-gray-50"
-              src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+              src="https://occ-0-8407-2218.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABRbyJQvuTywscJ5ocmmUqxoZH4CvP8dwnIiwj4XjjD9ERd-wDegR0gd9O-2W_Wqmv7BODrpwz1cPh9Vvtch9Dj_52qro0ywOWgiH.jpg?r=77f"
               alt=""
             />
             <span className="hidden lg:flex lg:items-center">

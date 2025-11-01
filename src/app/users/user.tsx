@@ -20,10 +20,23 @@ export default function AdminUsersPage() {
         const headers: Record<string, string> = {};
         if (token) headers["Authorization"] = `Bearer ${token}`;
 
-        const res = await fetch(`${apiBase}/users`, {
-          credentials: "include",
-          headers,
-        });
+        // const res = await fetch(`${apiBase}/users`, {
+        //   credentials: "include",
+        //   headers,
+        // });
+        const params = new URLSearchParams({
+  page: "1",
+  limit: "20",
+  no_pagination: "false",
+  sort_type: "-1",
+  is_fetch_all: "false",
+});
+
+const res = await fetch(`${apiBase}/users/information?${params.toString()}`, {
+  credentials: "include",
+  headers,
+});
+/////doan trên mới được sửa
         if (!res.ok) throw new Error(`Fetch users failed: ${res.status}`);
         const data = await res.json();
         if (mounted) setUsers(data);

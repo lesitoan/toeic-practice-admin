@@ -55,7 +55,7 @@ export default function VocabularyPage() {
       setDifficultyLevels(difficultyData);
       setPartsOfSpeech(partsData);
     } catch (error) {
-      console.error('Error loading filter options:', error);
+      // console.error('Error loading filter options:', error);
     }
   };
 

@@ -27,6 +27,7 @@ class UsersService {
       if (is_fetch_all) {
         queryParams.append('is_fetch_all', 'true');
       } else {
+        queryParams.append('is_fetch_all', 'false');
         queryParams.append('page', page.toString());
         queryParams.append('limit', limit.toString());
         queryParams.append('no_pagination', no_pagination.toString());
@@ -36,10 +37,12 @@ class UsersService {
       if (sort_type !== null) queryParams.append('sort_type', sort_type.toString());
       if (name) queryParams.append('name', name);
       if (role_id !== null) queryParams.append('role_id', role_id.toString());
+      
 
       const url = `${this.baseURL}?${queryParams.toString()}`;
       console.log('Fetching users from:', url);
-
+      console.log('🧩 Params sent:', params);
+      console.log('🌐 Base URL:', this.baseURL);
       const response = await apiClient.get(url);
       return response.data;
     } catch (error) {
@@ -58,6 +61,7 @@ class UsersService {
       throw error;
     }
   }
+
 
   // Get all users (no pagination)
   async getAllUsers() {
@@ -85,9 +89,9 @@ class UsersService {
   }
 
   // Get user by ID (if this endpoint exists)
-  async getUserById(userIId) {
+  async getUserById(id) {
     try {
-      const response = await apiClient.get(`${API_ENDPOINTS.USERS.BASE}/${userIId}`);
+      const response = await apiClient.get(`${API_ENDPOINTS.USERS.BASE}/${id}`);
       return response.data;
     } catch (error) {
       console.error('Get user by ID error:', error);
@@ -107,9 +111,9 @@ class UsersService {
   }
 
   // Update user (if this endpoint exists)
-  async updateUser(userId, userData) {
+  async updateUser(id, userData) {
     try {
-      const response = await apiClient.put(`${API_ENDPOINTS.USERS.BASE}/${userId}`, userData);
+      const response = await apiClient.put(`${API_ENDPOINTS.USERS.BASE}/${id}`, userData);
       return response.data;
     } catch (error) {
       console.error('Update user error:', error);
@@ -120,7 +124,7 @@ class UsersService {
   // Delete user (if this endpoint exists)
   async deleteUser(id) {
     try {
-      const response = await apiClient.delete(`${API_ENDPOINTS.USERS.BASE}/${userId}`);
+      const response = await apiClient.delete(`${API_ENDPOINTS.USERS.BASE}/${id}`);
       return response.data;
     } catch (error) {
       console.error('Delete user error:', error);

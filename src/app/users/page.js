@@ -42,21 +42,21 @@ export default function Users() {
         setUsers([]);
       }
     } catch (error) {
-      console.error('Error fetching users:', error);
+      // console.error('Error fetching users:', error);
       
       // Handle different error types
-      if (error.response?.status === 401) {
-        toast.error('Authentication failed. Please login again.');
-        // The axios interceptor will handle redirecting to login
-      } else if (error.response?.status === 403) {
-        toast.error('Access denied. You do not have permission to view users.');
-      } else if (error.response?.status === 422) {
-        toast.error('Invalid request parameters. Please check your filters.');
-      } else {
-        toast.error('Failed to fetch users. Please try again.');
-      }
+      // if (error.response?.status === 401) {
+      //   toast.error('Authentication failed. Please login again.');
+      //   // The axios interceptor will handle redirecting to login
+      // } else if (error.response?.status === 403) {
+      //   toast.error('Access denied. You do not have permission to view users.');
+      // } else if (error.response?.status === 422) {
+      //   toast.error('Invalid request parameters. Please check your filters.');
+      // } else {
+      //   toast.error('Failed to fetch users. Please try again.');
+      // }
       
-      setUsers([]);
+      // setUsers([]);
     } finally {
       setLoading(false);
     }
