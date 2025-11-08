@@ -8,8 +8,8 @@ const apiClient = axios.create({
     'Content-Type': 'application/json',
   },
 });
-console.log('🚀 API Base URL:', API_BASE_URL);
-console.log('🚀 Register Endpoint:', API_ENDPOINTS.AUTH.REGISTER);
+//console.log(' API Base URL:', API_BASE_URL);
+//console.log(' Register Endpoint:', API_ENDPOINTS.AUTH.REGISTER);
 
 
 // Request interceptor to add auth token

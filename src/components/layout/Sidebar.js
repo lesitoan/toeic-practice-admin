@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
@@ -13,6 +13,7 @@ import {
   AcademicCapIcon,
   BookOpenIcon
 } from '@heroicons/react/24/outline';
+import authService from '@/services/auth.service';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
@@ -26,6 +27,33 @@ const navigation = [
 
 export default function Sidebar({ open, setOpen }) {
   const pathname = usePathname();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        // First try to get from localStorage
+        let currentUser = authService.getCurrentUser();
+        
+        // If not in localStorage, fetch from API
+        if (!currentUser) {
+          currentUser = await authService.getCurrentUserFromAPI();
+          if (currentUser) {
+            localStorage.setItem('user', JSON.stringify(currentUser));
+          }
+        }
+        
+        setUser(currentUser);
+      } catch (error) {
+        console.error('Error loading user:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadUser();
+  }, []);
 
   return (
     <>
@@ -110,12 +138,26 @@ export default function Sidebar({ open, setOpen }) {
               <li className="mt-auto">
                 <div className="rounded-lg bg-gray-50 p-4">
                   <div className="flex items-center">
-                    <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                      <span className="text-sm font-medium text-blue-700">A</span>
-                    </div>
+                    {user?.avatar ? (
+                      <img
+                        className="h-10 w-10 rounded-full bg-gray-50 object-cover"
+                        src={user.avatar}
+                        alt={user.name || 'User'}
+                      />
+                    ) : (
+                      <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                        <span className="text-sm font-medium text-blue-700">
+                          {user?.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'U'}
+                        </span>
+                      </div>
+                    )}
                     <div className="ml-3">
-                      <p className="text-sm font-medium text-gray-700">Admin User</p>
-                      <p className="text-xs text-gray-500">admin@toeic.com</p>
+                      <p className="text-sm font-medium text-gray-700">
+                        {loading ? 'Loading...' : (user?.name || 'User')}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {loading ? '' : (user?.email || '')}
+                      </p>
                     </div>
                   </div>
                 </div>

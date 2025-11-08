@@ -7,9 +7,16 @@ export default function DataTable({
   data, 
   columns, 
   onEdit, 
-  onDelete, 
+  onDelete,
+  onViewDetail,
+  onRestore,
+  ActionsComponent,
   searchable = true,
-  sortable = true 
+  sortable = true,
+  loading = false,
+  pagination,
+  onPageChange,
+  onLimitChange
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
@@ -105,7 +112,7 @@ export default function DataTable({
                   </div>
                 </th>
               ))}
-              {(onEdit || onDelete) && (
+              {(onEdit || onDelete || ActionsComponent) && (
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
@@ -120,24 +127,46 @@ export default function DataTable({
                     {column.render ? column.render(item[column.key], item) : item[column.key]}
                   </td>
                 ))}
-                {(onEdit || onDelete) && (
+                {(onEdit || onDelete || ActionsComponent) && (
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center gap-2">
-                      {onEdit && (
-                        <button
-                          onClick={() => onEdit(item)}
-                          className="text-blue-600 hover:text-blue-900"
-                        >
-                          Edit
-                        </button>
-                      )}
-                      {onDelete && (
-                        <button
-                          onClick={() => onDelete(item)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          Delete
-                        </button>
+                      {ActionsComponent ? (
+                        <>
+                          <ActionsComponent 
+                            item={item}
+                            user={item}
+                            onViewDetail={onViewDetail}
+                            onRestore={onRestore}
+                            onEdit={onEdit}
+                          />
+                          {onDelete && (
+                            <button
+                              onClick={() => onDelete(item)}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              Delete
+                            </button>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          {onEdit && (
+                            <button
+                              onClick={() => onEdit(item)}
+                              className="text-blue-600 hover:text-blue-900"
+                            >
+                              Edit
+                            </button>
+                          )}
+                          {onDelete && (
+                            <button
+                              onClick={() => onDelete(item)}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              Delete
+                            </button>
+                          )}
+                        </>
                       )}
                     </div>
                   </td>

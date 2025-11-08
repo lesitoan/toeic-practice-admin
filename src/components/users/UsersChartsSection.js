@@ -3,17 +3,17 @@ import NewUsersChart from '@/components/charts/NewUsersChart';
 import UserActivityChart from '@/components/charts/UserActivityChart';
 import UserGrowthChart from '@/components/charts/UserGrowthChart';
 
-const UsersChartsSection = () => {
+const UsersChartsSection = ({ users = [] }) => {
   return (
     <div className="space-y-6">
       {/* New Users Chart */}
-      <NewUsersChart />
+      <NewUsersChart users={users} />
       
       {/* User Growth Chart */}
-      <UserGrowthChart />
+      <UserGrowthChart users={users} />
       
       {/* User Activity Chart */}
-      <UserActivityChart />
+      <UserActivityChart users={users} />
     </div>
   );
 };

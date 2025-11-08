@@ -34,10 +34,15 @@ export default function VocabularyPage() {
     try {
       setIsLoading(true);
       const response = await vocabularyService.getAllVocabularies(filters);
-      setVocabularies(response.data);
+      // Ensure we have an array - handle both response.data (array) and response.data.data (nested structure)
+      const vocabulariesData = Array.isArray(response?.data) 
+        ? response.data 
+        : (Array.isArray(response?.data?.data) ? response.data.data : []);
+      setVocabularies(vocabulariesData);
     } catch (error) {
       console.error('Error loading vocabularies:', error);
       toast.error('Failed to load vocabularies');
+      setVocabularies([]); // Set empty array on error
     } finally {
       setIsLoading(false);
     }
@@ -55,7 +60,7 @@ export default function VocabularyPage() {
       setDifficultyLevels(difficultyData);
       setPartsOfSpeech(partsData);
     } catch (error) {
-      console.error('Error loading filter options:', error);
+      // console.error('Error loading filter options:', error);
     }
   };
 

@@ -6,14 +6,17 @@ import {
   ClockIcon 
 } from '@heroicons/react/24/outline';
 
-const AnalyticsMetricsCards = ({ scoreData, testCompletionData }) => {
-  // Calculate metrics
-  const averageScore = Math.round(scoreData[scoreData.length - 1].averageScore);
-  const totalTests = scoreData[scoreData.length - 1].totalTests;
-  const activeUsers = scoreData[scoreData.length - 1].activeUsers;
-  const completionRate = Math.round(
-    testCompletionData.reduce((acc, test) => acc + test.completionRate, 0) / testCompletionData.length
-  );
+const AnalyticsMetricsCards = ({ scoreData = [], testCompletionData = [] }) => {
+  // Calculate metrics with safe defaults for empty data
+  const lastScoreData = scoreData.length > 0 ? scoreData[scoreData.length - 1] : null;
+  const averageScore = lastScoreData?.averageScore ? Math.round(lastScoreData.averageScore) : 0;
+  const totalTests = lastScoreData?.totalTests || 0;
+  const activeUsers = lastScoreData?.activeUsers || 0;
+  const completionRate = testCompletionData.length > 0
+    ? Math.round(
+        testCompletionData.reduce((acc, test) => acc + (test.completionRate || 0), 0) / testCompletionData.length
+      )
+    : 0;
 
   const metrics = [
     {

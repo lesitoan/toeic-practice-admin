@@ -10,34 +10,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 const stats = [
-  {
-    title: 'Active Users',
-    value: '2,847',
-    change: '12%',
-    changeType: 'increase',
-    icon: UsersIcon,
-  },
-  {
-    title: 'Tests Taken',
-    value: '15,234',
-    change: '8%',
-    changeType: 'increase',
-    icon: DocumentTextIcon,
-  },
-  {
-    title: 'Average Score',
-    value: '78.5%',
-    change: '3%',
-    changeType: 'increase',
-    icon: ChartBarIcon,
-  },
-  {
-    title: 'Active Sessions',
-    value: '156',
-    change: '5%',
-    changeType: 'decrease',
-    icon: ClockIcon,
-  },
+ 
 ];
 
 const recentActivity = [

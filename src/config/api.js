@@ -12,6 +12,8 @@ export const API_ENDPOINTS = {
   USERS: {
     LIST: `${API_BASE_URL}api/v1/users/information`,
     BASE: `${API_BASE_URL}api/v1/users`,
+    DETAIL: `${API_BASE_URL}/api/v1/users/information/id`,
+    DELETE: `${API_BASE_URL}api/v1/users/account`,
   },
   VOCABULARY: `${API_BASE_URL}api/v1/vocabulary`,
   TESTS: `${API_BASE_URL}api/v1/tests`,
