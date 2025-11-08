@@ -5,6 +5,7 @@ import { API_ENDPOINTS } from '@/config/api';
 class UsersService {
   constructor() {
     this.baseURL = API_ENDPOINTS.USERS.LIST;
+    this.deleteURL = API_ENDPOINTS.USERS.DELETE;
   }
 
   // Get users list with pagination and filters
@@ -88,10 +89,11 @@ class UsersService {
     return this.getUsers({ sort_by, sort_type, page, limit, is_fetch_all: false });
   }
 
-  // Get user by ID (if this endpoint exists)
+  // Get user by ID - uses /api/v1/users/information/{id}
   async getUserById(id) {
     try {
-      const response = await apiClient.get(`${API_ENDPOINTS.USERS.BASE}/${id}`);
+      // Use the correct endpoint: /api/v1/users/information/{id}
+      const response = await apiClient.get(`${API_ENDPOINTS.USERS.LIST}/${id}`);
       return response.data;
     } catch (error) {
       console.error('Get user by ID error:', error);
@@ -110,10 +112,11 @@ class UsersService {
     }
   }
 
-  // Update user (if this endpoint exists)
+  // Update user - uses /api/v1/users/information/{id}
   async updateUser(id, userData) {
     try {
-      const response = await apiClient.put(`${API_ENDPOINTS.USERS.BASE}/${id}`, userData);
+      // Use the correct endpoint: /api/v1/users/information/{id}
+      const response = await apiClient.put(`${API_ENDPOINTS.USERS.LIST}/${id}`, userData);
       return response.data;
     } catch (error) {
       console.error('Update user error:', error);
@@ -124,10 +127,23 @@ class UsersService {
   // Delete user (if this endpoint exists)
   async deleteUser(id) {
     try {
-      const response = await apiClient.delete(`${API_ENDPOINTS.USERS.BASE}/${id}`);
+      const response = await apiClient.delete(`${API_ENDPOINTS.USERS.DELETE}/${id}`);
       return response.data;
     } catch (error) {
       console.error('Delete user error:', error);
+      throw error;
+    }
+  }
+
+  // Restore user (undelete user - cancel delete)
+  // Uses PUT /api/v1/users/account/{id}
+  async restoreUser(id) {
+    try {
+      // Use the correct endpoint: /api/v1/users/account/{id}
+      const response = await apiClient.patch(`${API_ENDPOINTS.USERS.DELETE}/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Restore user error:', error);
       throw error;
     }
   }

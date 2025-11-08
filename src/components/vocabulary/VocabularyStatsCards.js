@@ -2,11 +2,14 @@ import React from 'react';
 import { BookOpenIcon } from '@heroicons/react/24/outline';
 
 const VocabularyStatsCards = ({ vocabularies }) => {
+  // Ensure vocabularies is an array
+  const vocabulariesArray = Array.isArray(vocabularies) ? vocabularies : [];
+  
   // Calculate statistics
-  const totalWords = vocabularies.length;
-  const beginnerWords = vocabularies.filter(v => v.difficulty === 'beginner').length;
-  const intermediateWords = vocabularies.filter(v => v.difficulty === 'intermediate').length;
-  const advancedWords = vocabularies.filter(v => v.difficulty === 'advanced').length;
+  const totalWords = vocabulariesArray.length;
+  const beginnerWords = vocabulariesArray.filter(v => v.difficulty === 'beginner').length;
+  const intermediateWords = vocabulariesArray.filter(v => v.difficulty === 'intermediate').length;
+  const advancedWords = vocabulariesArray.filter(v => v.difficulty === 'advanced').length;
 
   const stats = [
     {

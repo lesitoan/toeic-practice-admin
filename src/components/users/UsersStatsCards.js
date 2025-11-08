@@ -5,9 +5,12 @@ const UsersStatsCards = ({ users }) => {
   const totalUsers = users.length;
   const activeUsers = users.filter(u => u.status === 'Active').length;
   const inactiveUsers = users.filter(u => u.status === 'Inactive').length;
-  const averageScore = Math.round(
-    users.reduce((acc, user) => acc + parseInt(user.averageScore), 0) / users.length
-  );
+  const numericScores = users
+    .map(u => Number(String(u.averageScore).replace('%','')))
+    .filter(v => !isNaN(v));
+  const averageScore = numericScores.length
+    ? Math.round(numericScores.reduce((a,b) => a + b, 0) / numericScores.length)
+    : 0;
 
   const stats = [
     {

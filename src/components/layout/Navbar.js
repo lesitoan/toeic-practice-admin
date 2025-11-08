@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import { 
@@ -13,7 +13,34 @@ import authService from '@/services/auth.service';
 
 export default function Navbar({ onMenuClick }) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
+
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        // First try to get from localStorage
+        let currentUser = authService.getCurrentUser();
+        
+        // If not in localStorage, fetch from API
+        if (!currentUser) {
+          currentUser = await authService.getCurrentUserFromAPI();
+          if (currentUser) {
+            localStorage.setItem('user', JSON.stringify(currentUser));
+          }
+        }
+        
+        setUser(currentUser);
+      } catch (error) {
+        console.error('Error loading user:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadUser();
+  }, []);
 
   const handleSignOut = async () => {
     try {
@@ -75,13 +102,21 @@ export default function Navbar({ onMenuClick }) {
             className="flex items-center gap-x-4 text-sm font-medium leading-6 text-gray-900"
             onClick={() => setIsProfileOpen(!isProfileOpen)}
           >
-            <img
-              className="h-8 w-8 rounded-full bg-gray-50"
-              src="https://occ-0-8407-2218.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABRbyJQvuTywscJ5ocmmUqxoZH4CvP8dwnIiwj4XjjD9ERd-wDegR0gd9O-2W_Wqmv7BODrpwz1cPh9Vvtch9Dj_52qro0ywOWgiH.jpg?r=77f"
-              alt=""
-            />
+            {user?.avatar ? (
+              <img
+                className="h-8 w-8 rounded-full bg-gray-50 object-cover"
+                src={user.avatar}
+                alt={user.name || 'User'}
+              />
+            ) : (
+              <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+                <span className="text-xs font-medium text-blue-700">
+                  {user?.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'U'}
+                </span>
+              </div>
+            )}
             <span className="hidden lg:flex lg:items-center">
-              Admin User
+              {loading ? 'Loading...' : (user?.name || 'User')}
               <ChevronDownIcon className="ml-2 h-5 w-5 text-gray-400" />
             </span>
           </button>

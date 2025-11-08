@@ -5,11 +5,10 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import TestsStatsCards from '@/components/tests/TestsStatsCards';
 import TestsFilters from '@/components/tests/TestsFilters';
 import TestsTable from '@/components/tests/TestsTable';
-import { MOCK_TESTS } from '@/constants/tests';
 import { PlusIcon } from '@heroicons/react/24/outline';
 
 export default function Tests() {
-  const [tests, setTests] = useState(MOCK_TESTS);
+  const [tests, setTests] = useState([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');

@@ -28,15 +28,56 @@ ChartJS.register(
   Legend
 );
 
-export default function NewUsersChart() {
+export default function NewUsersChart({ users = [] }) {
   const [chartData, setChartData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedPeriod, setSelectedPeriod] = useState('12months');
   const [statsSummary, setStatsSummary] = useState(null);
 
   useEffect(() => {
-    loadChartData();
-  }, [selectedPeriod]);
+    if (users.length > 0) {
+      loadChartDataFromUsers();
+    } else {
+      loadChartData();
+    }
+  }, [selectedPeriod, users]);
+
+  const loadChartDataFromUsers = () => {
+    try {
+      setIsLoading(true);
+      
+      // Process users data to create chart data
+      // Since there's no created_at in the response, we'll use available data
+      // For now, we'll create a simple chart based on active/inactive users
+      const activeUsers = users.filter(u => u.is_active && !u.deleted_at).length;
+      const inactiveUsers = users.filter(u => !u.is_active || u.deleted_at).length;
+      
+      // Group by role_id for additional insights
+      const roleGroups = users.reduce((acc, user) => {
+        const role = user.role_id || 'unknown';
+        acc[role] = (acc[role] || 0) + 1;
+        return acc;
+      }, {});
+      
+      // Create summary stats
+      const summary = {
+        totalUsers: users.length,
+        activeUsers: activeUsers,
+        inactiveUsers: inactiveUsers,
+        newUsersThisMonth: 0, // Can't calculate without created_at
+        growthRate: 0
+      };
+      
+      setStatsSummary(summary);
+      
+      // For now, use the service for time-based data
+      // But we can enhance this later if created_at is added to the API
+      loadChartData();
+    } catch (error) {
+      console.error('Error processing user data:', error);
+      setIsLoading(false);
+    }
+  };
 
   const loadChartData = async () => {
     try {
@@ -46,8 +87,15 @@ export default function NewUsersChart() {
         userStatsService.getUserStatsSummary()
       ]);
       
+      // Merge summary with user list data if available
+      if (users.length > 0 && statsSummary) {
+        summaryResult.totalUsers = statsSummary.totalUsers;
+        summaryResult.activeUsers = statsSummary.activeUsers;
+        summaryResult.inactiveUsers = statsSummary.inactiveUsers;
+      }
+      
       setChartData(chartDataResult);
-      setStatsSummary(summaryResult);
+      setStatsSummary(summaryResult || statsSummary);
     } catch (error) {
       console.error('Error loading chart data:', error);
     } finally {
@@ -193,8 +241,15 @@ export default function NewUsersChart() {
       {/* Chart */}
       <div className="p-6">
         <div className="h-80">
-          {chartData && (
+          {chartData && chartData.labels && chartData.labels.length > 0 ? (
             <Bar data={chartData} options={chartOptions} />
+          ) : (
+            <div className="flex items-center justify-center h-full text-gray-500">
+              <div className="text-center">
+                <p className="text-lg font-medium mb-2">No Data Available</p>
+                <p className="text-sm">There are no users to display in the selected period.</p>
+              </div>
+            </div>
           )}
         </div>
       </div>

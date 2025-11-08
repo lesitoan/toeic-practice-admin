@@ -6,10 +6,8 @@ import ResultsStatsCards from '@/components/results/ResultsStatsCards';
 import ScoreDistributionChart from '@/components/results/ScoreDistributionChart';
 import ResultsFilters from '@/components/results/ResultsFilters';
 import ResultsTable from '@/components/results/ResultsTable';
-import { MOCK_RESULTS } from '@/constants/results';
-
 export default function Results() {
-  const [results, setResults] = useState(MOCK_RESULTS);
+  const [results, setResults] = useState([]);
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 

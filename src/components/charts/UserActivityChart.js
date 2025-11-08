@@ -24,21 +24,100 @@ ChartJS.register(
   Legend
 );
 
-export default function UserActivityChart() {
+export default function UserActivityChart({ users = [] }) {
   const [chartData, setChartData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    loadChartData();
-  }, []);
+    if (users.length > 0) {
+      loadChartDataFromUsers();
+    } else {
+      loadChartData();
+    }
+  }, [users]);
+
+  const loadChartDataFromUsers = () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      // Process users data to create activity chart
+      // Group users by role_id for activity insights
+      const roleActivity = users.reduce((acc, user) => {
+        const role = user.role_id || 'unknown';
+        if (!acc[role]) {
+          acc[role] = { active: 0, inactive: 0 };
+        }
+        if (user.is_active && !user.deleted_at) {
+          acc[role].active++;
+        } else {
+          acc[role].inactive++;
+        }
+        return acc;
+      }, {});
+      
+      // Create chart data from user list
+      const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      const activeCount = users.filter(u => u.is_active && !u.deleted_at).length;
+      const avgDailyActive = Math.round(activeCount / 7);
+      
+      const data = {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Active Users',
+            data: labels.map(() => avgDailyActive),
+            backgroundColor: 'rgba(59, 130, 246, 0.6)',
+            borderColor: 'rgba(59, 130, 246, 1)',
+            borderWidth: 1,
+            borderRadius: 4,
+          }
+        ]
+      };
+      
+      setChartData(data);
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Error processing user activity data:', error);
+      setError('Failed to process user activity data');
+      setIsLoading(false);
+    }
+  };
 
   const loadChartData = async () => {
     try {
       setIsLoading(true);
+      setError(null);
       const data = await userStatsService.getUserActivityByDay();
       setChartData(data);
     } catch (error) {
       console.error('Error loading user activity data:', error);
+      setError('Failed to load user activity data');
+      // Set empty chart data as fallback
+      setChartData({
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [
+          {
+            label: 'Active Users',
+            data: [0, 0, 0, 0, 0, 0, 0],
+            backgroundColor: 'rgba(245, 158, 11, 0.8)',
+            borderColor: 'rgba(245, 158, 11, 1)',
+            borderWidth: 1,
+            borderRadius: 4,
+            borderSkipped: false,
+          },
+          {
+            label: 'New Users',
+            data: [0, 0, 0, 0, 0, 0, 0],
+            backgroundColor: 'rgba(239, 68, 68, 0.8)',
+            borderColor: 'rgba(239, 68, 68, 1)',
+            borderWidth: 1,
+            borderRadius: 4,
+            borderSkipped: false,
+          },
+        ],
+      });
     } finally {
       setIsLoading(false);
     }
@@ -122,8 +201,21 @@ export default function UserActivityChart() {
       {/* Chart */}
       <div className="p-6">
         <div className="h-64">
-          {chartData && (
+          {error && (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center">
+                <p className="text-red-600 text-sm mb-2">{error}</p>
+                <p className="text-gray-500 text-xs">Please check your connection and try again.</p>
+              </div>
+            </div>
+          )}
+          {!error && chartData && (
             <Bar data={chartData} options={chartOptions} />
+          )}
+          {!error && !chartData && (
+            <div className="flex items-center justify-center h-full text-gray-500">
+              <p>No data available</p>
+            </div>
           )}
         </div>
       </div>

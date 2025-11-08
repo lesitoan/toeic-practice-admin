@@ -31,27 +31,57 @@ ChartJS.register(
   Legend
 );
 
-export default function UserGrowthChart() {
+export default function UserGrowthChart({ users = [] }) {
   const [chartData, setChartData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedPeriod, setSelectedPeriod] = useState('12months');
 
   useEffect(() => {
-    loadChartData();
-  }, [selectedPeriod]);
+    if (users.length > 0) {
+      loadChartDataFromUsers();
+    } else {
+      loadChartData();
+    }
+  }, [selectedPeriod, users]);
+
+  const loadChartDataFromUsers = () => {
+    try {
+      setIsLoading(true);
+      
+      // Process users data for growth chart
+      // Since there's no created_at, we'll show current user distribution
+      const totalUsers = users.length;
+      const activeUsers = users.filter(u => u.is_active && !u.deleted_at).length;
+      const inactiveUsers = users.filter(u => !u.is_active || u.deleted_at).length;
+      
+      // Group by role
+      const roleDistribution = users.reduce((acc, user) => {
+        const role = user.role_id || 'unknown';
+        acc[role] = (acc[role] || 0) + 1;
+        return acc;
+      }, {});
+      
+      // For time-based growth, still use service
+      // But we can enhance with current user stats
+      loadChartData();
+    } catch (error) {
+      console.error('Error processing user growth data:', error);
+      setIsLoading(false);
+    }
+  };
 
   const loadChartData = async () => {
     try {
       setIsLoading(true);
       const data = await userStatsService.getNewUsersByMonth(selectedPeriod);
-      
-      // Transform data to include total users
-      const mockTotalUsers = [
-        245, 297, 335, 396, 443, 498, 540, 598, 647, 710, 761, 828
-      ];
-      
-      const totalUsersData = mockTotalUsers.slice(-data.labels.length);
-      
+
+      // Derive total users cumulatively from new users data
+      const totalUsersData = data.datasets[0].data.reduce((acc, cur) => {
+        const prev = acc.length ? acc[acc.length - 1] : 0;
+        acc.push(prev + (Number(cur) || 0));
+        return acc;
+      }, []);
+
       const combinedData = {
         labels: data.labels,
         datasets: [

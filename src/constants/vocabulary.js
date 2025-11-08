@@ -74,6 +74,27 @@ export const DIFFICULTY_LEVELS = [
   { value: 'advanced', label: 'Advanced', color: 'red' },
 ];
 
+// Categories (fallback data)
+export const CATEGORIES = [
+  { value: 'general', label: 'General' },
+  { value: 'business', label: 'Business' },
+  { value: 'academic', label: 'Academic' },
+  { value: 'travel', label: 'Travel' },
+  { value: 'technology', label: 'Technology' },
+];
+
+// Parts of speech (fallback data)
+export const PARTS_OF_SPEECH = [
+  { value: 'noun', label: 'Noun' },
+  { value: 'verb', label: 'Verb' },
+  { value: 'adjective', label: 'Adjective' },
+  { value: 'adverb', label: 'Adverb' },
+  { value: 'preposition', label: 'Preposition' },
+  { value: 'conjunction', label: 'Conjunction' },
+  { value: 'pronoun', label: 'Pronoun' },
+  { value: 'interjection', label: 'Interjection' },
+];
+
 // Default filter state
 export const DEFAULT_FILTERS = {
   search: '',

@@ -8,17 +8,17 @@ import TestCompletionRates from '@/components/analytics/TestCompletionRates';
 import TopStudentsTable from '@/components/analytics/TopStudentsTable';
 import ScoreDistributionChart from '@/components/analytics/ScoreDistributionChart';
 import RecentActivity from '@/components/analytics/RecentActivity';
-import { 
-  MOCK_SCORE_DATA, 
-  MOCK_TEST_COMPLETION_DATA, 
-  MOCK_USER_PROGRESS_DATA, 
-  MOCK_SCORE_DISTRIBUTION, 
-  MOCK_RECENT_ACTIVITY, 
-  PERIOD_OPTIONS 
-} from '@/constants/analytics';
+import { PERIOD_OPTIONS } from '@/constants/analytics';
 
 export default function Analytics() {
   const [selectedPeriod, setSelectedPeriod] = useState('12months');
+  
+  // Empty data arrays - replace with API calls when ready
+  const scoreData = [];
+  const testCompletionData = [];
+  const userProgressData = [];
+  const scoreDistribution = [];
+  const recentActivity = [];
 
   return (
     <DashboardLayout>
@@ -48,26 +48,26 @@ export default function Analytics() {
 
         {/* Key Metrics */}
         <AnalyticsMetricsCards 
-          scoreData={MOCK_SCORE_DATA} 
-          testCompletionData={MOCK_TEST_COMPLETION_DATA} 
+          scoreData={scoreData} 
+          testCompletionData={testCompletionData} 
         />
 
         {/* Score Trend Chart */}
-        <ScoreTrendChart scoreData={MOCK_SCORE_DATA} />
+        <ScoreTrendChart scoreData={scoreData} />
 
         {/* Test Completion Rates */}
-        <TestCompletionRates testCompletionData={MOCK_TEST_COMPLETION_DATA} />
+        <TestCompletionRates testCompletionData={testCompletionData} />
 
         {/* Top Students Table */}
-        <TopStudentsTable userProgressData={MOCK_USER_PROGRESS_DATA} />
+        <TopStudentsTable userProgressData={userProgressData} />
 
         {/* Additional Insights */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* Score Distribution */}
-          <ScoreDistributionChart scoreDistribution={MOCK_SCORE_DISTRIBUTION} />
+          <ScoreDistributionChart scoreDistribution={scoreDistribution} />
 
           {/* Recent Activity */}
-          <RecentActivity recentActivity={MOCK_RECENT_ACTIVITY} />
+          <RecentActivity recentActivity={recentActivity} />
         </div>
       </div>
     </DashboardLayout>

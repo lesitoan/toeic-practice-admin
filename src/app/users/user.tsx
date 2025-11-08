@@ -39,7 +39,21 @@ const res = await fetch(`${apiBase}/users/information?${params.toString()}`, {
 /////doan trên mới được sửa
         if (!res.ok) throw new Error(`Fetch users failed: ${res.status}`);
         const data = await res.json();
-        if (mounted) setUsers(data);
+        const roleLabel = (role_id?: number) => {
+          if (role_id === 1) return "Admin";
+          if (role_id === 2) return "Staff";
+          if (role_id === 3) return "Student";
+          return "User";
+        };
+        const items: User[] = Array.isArray(data?.items)
+          ? data.items.map((u: any) => ({
+              id: String(u.id),
+              name: u.name,
+              email: u.email,
+              role: roleLabel(u.role_id),
+            }))
+          : [];
+        if (mounted) setUsers(items);
       } catch (e: any) {
         setError(e?.message || "Lỗi khi tải danh sách người dùng");
       } finally {
