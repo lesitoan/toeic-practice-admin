@@ -6,17 +6,19 @@ export const USER_COLUMNS = [
     key: 'name',
     label: 'Name',
     render: (value, item) => {
-      const hasAvatar = item.avatar && item.avatar.trim() !== '';
+      const hasAvatar = item.avatar && item.avatar.trim() !== '' && new RegExp('^(https?://.*\\.(?:png|jpg|jpeg|gif|webp|svg|bmp))(?:\\?.*)?$').test(item.avatar);
       const initials = value && value !== '-' 
         ? value.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) 
         : 'U';
+
+        const avatar =hasAvatar ? item.avatar :  '/image/defaultAvt.jpg';
       
       return (
         <div className="flex items-center">
-          {hasAvatar ? (
+          {true ? (
             <img
               className="h-10 w-10 rounded-full bg-gray-50 object-cover flex-shrink-0"
-              src={item.avatar}
+              src={avatar}
               alt={value || 'User'}
               onError={(e) => {
                 // Hide image and show fallback if image fails to load
@@ -28,13 +30,7 @@ export const USER_COLUMNS = [
               }}
             />
           ) : null}
-          <div 
-            className={`h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 ${hasAvatar ? 'hidden' : ''}`}
-          >
-            <span className="text-sm font-medium text-blue-700">
-              {initials}
-            </span>
-          </div>
+          
           <div className="ml-4">
             <div className="text-sm font-medium text-gray-900">{value}</div>
             <div className="text-sm text-gray-500">{item.email}</div>

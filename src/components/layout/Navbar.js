@@ -45,7 +45,7 @@ export default function Navbar({ onMenuClick }) {
   const handleSignOut = async () => {
     try {
       await authService.logout();
-      toast.success('Đăng xuất thành công!');
+      //toast.success('Đăng xuất thành công!');
       router.push('/login');
     } catch (error) {
       console.error('Sign out error:', error);

@@ -8,15 +8,30 @@ import {
   BarElement,
   LineElement,
   PointElement,
+  BarController,
+  LineController,
   Title,
   Tooltip,
   Legend,
 } from 'chart.js';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  PointElement,
+  BarController,
+  LineController,
+  Title,
+  Tooltip,
+  Legend
+);
+
 import { Chart } from 'react-chartjs-2';
-import userStatsService from '@/services/userStats.service';
+import usersService from '@/services/users.service';
 import { 
-  ArrowTrendingUpIcon,
-  CalendarIcon 
+  ArrowTrendingUpIcon
 } from '@heroicons/react/24/outline';
 
 // Register Chart.js components
@@ -34,61 +49,51 @@ ChartJS.register(
 export default function UserGrowthChart({ users = [] }) {
   const [chartData, setChartData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedPeriod, setSelectedPeriod] = useState('12months');
 
   useEffect(() => {
-    if (users.length > 0) {
-      loadChartDataFromUsers();
-    } else {
-      loadChartData();
-    }
-  }, [selectedPeriod, users]);
-
-  const loadChartDataFromUsers = () => {
-    try {
-      setIsLoading(true);
-      
-      // Process users data for growth chart
-      // Since there's no created_at, we'll show current user distribution
-      const totalUsers = users.length;
-      const activeUsers = users.filter(u => u.is_active && !u.deleted_at).length;
-      const inactiveUsers = users.filter(u => !u.is_active || u.deleted_at).length;
-      
-      // Group by role
-      const roleDistribution = users.reduce((acc, user) => {
-        const role = user.role_id || 'unknown';
-        acc[role] = (acc[role] || 0) + 1;
-        return acc;
-      }, {});
-      
-      // For time-based growth, still use service
-      // But we can enhance with current user stats
-      loadChartData();
-    } catch (error) {
-      console.error('Error processing user growth data:', error);
-      setIsLoading(false);
-    }
-  };
+    loadChartData();
+  }, []);
 
   const loadChartData = async () => {
     try {
       setIsLoading(true);
-      const data = await userStatsService.getNewUsersByMonth(selectedPeriod);
-
-      // Derive total users cumulatively from new users data
-      const totalUsersData = data.datasets[0].data.reduce((acc, cur) => {
-        const prev = acc.length ? acc[acc.length - 1] : 0;
-        acc.push(prev + (Number(cur) || 0));
+      
+      // Fetch all users from the API
+      const response = await usersService.getUsers({
+        is_fetch_all: true,
+        no_pagination: true
+      });
+      
+      const allUsers = Array.isArray(response?.items) ? response.items : [];
+      
+      // Process users data for growth chart
+      // Since there's no created_at, we'll show user distribution by role and status
+      const roleNames = { 1: 'Admin', 2: 'Staff', 3: 'Student' };
+      
+      // Group by role
+      const roleDistribution = allUsers.reduce((acc, user) => {
+        const roleId = user.role_id || 3;
+        const roleName = roleNames[roleId] || 'Unknown';
+        acc[roleName] = (acc[roleName] || 0) + 1;
         return acc;
-      }, []);
-
+      }, {});
+      
+      // Group by active/inactive
+      const activeCount = allUsers.filter(u => u.is_active && !u.deleted_at).length;
+      const inactiveCount = allUsers.filter(u => !u.is_active || u.deleted_at).length;
+      
+      // Create chart data - show role distribution as bars and total as line
+      const labels = Object.keys(roleDistribution);
+      const roleData = Object.values(roleDistribution);
+      const totalUsers = allUsers.length;
+      
       const combinedData = {
-        labels: data.labels,
+        labels: labels,
         datasets: [
           {
             type: 'bar',
-            label: 'New Users',
-            data: data.datasets[0].data,
+            label: 'Users by Role',
+            data: roleData,
             backgroundColor: 'rgba(59, 130, 246, 0.6)',
             borderColor: 'rgba(59, 130, 246, 1)',
             borderWidth: 1,
@@ -99,7 +104,7 @@ export default function UserGrowthChart({ users = [] }) {
           {
             type: 'line',
             label: 'Total Users',
-            data: totalUsersData,
+            data: labels.map(() => totalUsers),
             backgroundColor: 'rgba(34, 197, 94, 0.1)',
             borderColor: 'rgba(34, 197, 94, 1)',
             borderWidth: 3,
@@ -118,6 +123,7 @@ export default function UserGrowthChart({ users = [] }) {
       setChartData(combinedData);
     } catch (error) {
       console.error('Error loading user growth data:', error);
+      setChartData(null);
     } finally {
       setIsLoading(false);
     }
@@ -183,7 +189,7 @@ export default function UserGrowthChart({ users = [] }) {
         },
         title: {
           display: true,
-          text: 'New Users',
+          text: 'Users by Role',
           color: 'rgba(59, 130, 246, 1)',
         }
       },
@@ -232,21 +238,9 @@ export default function UserGrowthChart({ users = [] }) {
           <div className="flex items-center">
             <ArrowTrendingUpIcon className="h-5 w-5 text-green-600 mr-2" />
             <div>
-              <h3 className="text-lg font-medium text-gray-900">User Growth Analysis</h3>
-              <p className="text-sm text-gray-500">New users vs total user base over time</p>
+              <h3 className="text-lg font-medium text-gray-900">User Distribution Analysis</h3>
+              <p className="text-sm text-gray-500">User distribution by role and total count</p>
             </div>
-          </div>
-          <div className="flex items-center space-x-2">
-            <CalendarIcon className="h-4 w-4 text-gray-400" />
-            <select
-              value={selectedPeriod}
-              onChange={(e) => setSelectedPeriod(e.target.value)}
-              className="text-sm border border-gray-300 rounded-md px-3 py-1 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="3months">Last 3 Months</option>
-              <option value="6months">Last 6 Months</option>
-              <option value="12months">Last 12 Months</option>
-            </select>
           </div>
         </div>
       </div>
@@ -267,11 +261,11 @@ export default function UserGrowthChart({ users = [] }) {
             <div className="flex items-center space-x-4">
               <div className="flex items-center">
                 <div className="w-3 h-3 bg-blue-500 rounded mr-2"></div>
-                <span>New Users (Monthly)</span>
+                <span>Users by Role</span>
               </div>
               <div className="flex items-center">
                 <div className="w-3 h-3 bg-green-500 rounded mr-2"></div>
-                <span>Total Users (Cumulative)</span>
+                <span>Total Users</span>
               </div>
             </div>
             <div className="text-xs text-gray-500">

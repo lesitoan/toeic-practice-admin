@@ -9,14 +9,21 @@ import {
   Title,
   Tooltip,
   Legend,
+  LineController,
 } from 'chart.js';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineController,
+  Title,
+  Tooltip,
+  Legend
+);
+
 import { Bar } from 'react-chartjs-2';
-import userStatsService from '@/services/userStats.service';
-import { 
-  ArrowUpIcon, 
-  ArrowDownIcon,
-  CalendarIcon 
-} from '@heroicons/react/24/outline';
+import usersService from '@/services/users.service';
 
 // Register Chart.js components
 ChartJS.register(
@@ -31,73 +38,82 @@ ChartJS.register(
 export default function NewUsersChart({ users = [] }) {
   const [chartData, setChartData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedPeriod, setSelectedPeriod] = useState('12months');
   const [statsSummary, setStatsSummary] = useState(null);
 
   useEffect(() => {
-    if (users.length > 0) {
-      loadChartDataFromUsers();
-    } else {
-      loadChartData();
-    }
-  }, [selectedPeriod, users]);
-
-  const loadChartDataFromUsers = () => {
-    try {
-      setIsLoading(true);
-      
-      // Process users data to create chart data
-      // Since there's no created_at in the response, we'll use available data
-      // For now, we'll create a simple chart based on active/inactive users
-      const activeUsers = users.filter(u => u.is_active && !u.deleted_at).length;
-      const inactiveUsers = users.filter(u => !u.is_active || u.deleted_at).length;
-      
-      // Group by role_id for additional insights
-      const roleGroups = users.reduce((acc, user) => {
-        const role = user.role_id || 'unknown';
-        acc[role] = (acc[role] || 0) + 1;
-        return acc;
-      }, {});
-      
-      // Create summary stats
-      const summary = {
-        totalUsers: users.length,
-        activeUsers: activeUsers,
-        inactiveUsers: inactiveUsers,
-        newUsersThisMonth: 0, // Can't calculate without created_at
-        growthRate: 0
-      };
-      
-      setStatsSummary(summary);
-      
-      // For now, use the service for time-based data
-      // But we can enhance this later if created_at is added to the API
-      loadChartData();
-    } catch (error) {
-      console.error('Error processing user data:', error);
-      setIsLoading(false);
-    }
-  };
+    loadChartData();
+  }, []);
 
   const loadChartData = async () => {
     try {
       setIsLoading(true);
-      const [chartDataResult, summaryResult] = await Promise.all([
-        userStatsService.getNewUsersByMonth(selectedPeriod),
-        userStatsService.getUserStatsSummary()
-      ]);
       
-      // Merge summary with user list data if available
-      if (users.length > 0 && statsSummary) {
-        summaryResult.totalUsers = statsSummary.totalUsers;
-        summaryResult.activeUsers = statsSummary.activeUsers;
-        summaryResult.inactiveUsers = statsSummary.inactiveUsers;
-      }
+      // Fetch all users from the API
+      const response = await usersService.getUsers({
+        is_fetch_all: true,
+        no_pagination: true
+      });
+      
+      const allUsers = Array.isArray(response?.items) ? response.items : [];
+      
+      // Process users data to create chart data
+      // Group users by role for visualization
+      const roleNames = { 1: 'Admin', 2: 'Staff', 3: 'Student' };
+      const roleCounts = allUsers.reduce((acc, user) => {
+        const roleId = user.role_id || 3;
+        const roleName = roleNames[roleId] || 'Unknown';
+        acc[roleName] = (acc[roleName] || 0) + 1;
+        return acc;
+      }, {});
+      
+      // Create chart data - show user distribution by role
+      const labels = Object.keys(roleCounts);
+      const data = Object.values(roleCounts);
+      
+      const chartDataResult = {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Users by Role',
+            data: data,
+            backgroundColor: [
+              'rgba(59, 130, 246, 0.8)',
+              'rgba(16, 185, 129, 0.8)',
+              'rgba(245, 158, 11, 0.8)',
+            ],
+            borderColor: [
+              'rgba(59, 130, 246, 1)',
+              'rgba(16, 185, 129, 1)',
+              'rgba(245, 158, 11, 1)',
+            ],
+            borderWidth: 1,
+            borderRadius: 4,
+          }
+        ]
+      };
+      
+      // Calculate summary stats
+      const activeUsers = allUsers.filter(u => u.is_active && !u.deleted_at).length;
+      const inactiveUsers = allUsers.filter(u => !u.is_active || u.deleted_at).length;
+      const totalUsers = allUsers.length;
+      
+      const summary = {
+        totalUsers: totalUsers,
+        activeUsers: activeUsers,
+        inactiveUsers: inactiveUsers,
+        newUsersThisMonth: 0, // Can't calculate without created_at
+        averageNewUsersPerMonth: 0,
+        growthRate: 0,
+        peakMonth: { month: 'N/A', newUsers: 0 },
+        totalNewUsersThisYear: totalUsers
+      };
       
       setChartData(chartDataResult);
-      setStatsSummary(summaryResult || statsSummary);
+      setStatsSummary(summary);
     } catch (error) {
       console.error('Error loading chart data:', error);
+      setChartData(null);
+      setStatsSummary(null);
     } finally {
       setIsLoading(false);
     }
@@ -161,20 +177,6 @@ export default function NewUsersChart({ users = [] }) {
     },
   };
 
-  const getGrowthIcon = (growthRate) => {
-    if (growthRate > 0) {
-      return <ArrowUpIcon className="h-4 w-4 text-green-500" />;
-    } else if (growthRate < 0) {
-      return <ArrowDownIcon className="h-4 w-4 text-red-500" />;
-    }
-    return null;
-  };
-
-  const getGrowthColor = (growthRate) => {
-    if (growthRate > 0) return 'text-green-600';
-    if (growthRate < 0) return 'text-red-600';
-    return 'text-gray-600';
-  };
 
   if (isLoading) {
     return (
@@ -193,20 +195,8 @@ export default function NewUsersChart({ users = [] }) {
       <div className="px-6 py-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-medium text-gray-900">New Users Registration</h3>
-            <p className="text-sm text-gray-500">Monthly user registration trends</p>
-          </div>
-          <div className="flex items-center space-x-2">
-            <CalendarIcon className="h-4 w-4 text-gray-400" />
-            <select
-              value={selectedPeriod}
-              onChange={(e) => setSelectedPeriod(e.target.value)}
-              className="text-sm border border-gray-300 rounded-md px-3 py-1 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="3months">Last 3 Months</option>
-              <option value="6months">Last 6 Months</option>
-              <option value="12months">Last 12 Months</option>
-            </select>
+            <h3 className="text-lg font-medium text-gray-900">User Distribution by Role</h3>
+            <p className="text-sm text-gray-500">Total users grouped by role</p>
           </div>
         </div>
       </div>
@@ -217,22 +207,21 @@ export default function NewUsersChart({ users = [] }) {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="text-center">
               <div className="text-2xl font-bold text-gray-900">
-                {statsSummary.newUsersThisMonth}
+                {statsSummary.totalUsers}
               </div>
-              <div className="text-sm text-gray-500">This Month</div>
+              <div className="text-sm text-gray-500">Total Users</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-gray-900">
-                {statsSummary.averageNewUsersPerMonth}
+                {statsSummary.activeUsers}
               </div>
-              <div className="text-sm text-gray-500">Monthly Average</div>
+              <div className="text-sm text-gray-500">Active Users</div>
             </div>
             <div className="text-center">
-              <div className={`text-2xl font-bold flex items-center justify-center ${getGrowthColor(statsSummary.growthRate)}`}>
-                {getGrowthIcon(statsSummary.growthRate)}
-                <span className="ml-1">{Math.abs(statsSummary.growthRate)}%</span>
+              <div className="text-2xl font-bold text-gray-900">
+                {statsSummary.inactiveUsers}
               </div>
-              <div className="text-sm text-gray-500">Growth Rate</div>
+              <div className="text-sm text-gray-500">Inactive Users</div>
             </div>
           </div>
         </div>
@@ -259,10 +248,10 @@ export default function NewUsersChart({ users = [] }) {
         <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
           <div className="flex items-center justify-between text-sm text-gray-600">
             <div>
-              <span className="font-medium">Peak Month:</span> {statsSummary.peakMonth.month} ({statsSummary.peakMonth.newUsers} users)
+              <span className="font-medium">Total Users:</span> {statsSummary.totalUsers}
             </div>
             <div>
-              <span className="font-medium">Total New Users This Year:</span> {statsSummary.totalNewUsersThisYear}
+              <span className="font-medium">Active Rate:</span> {statsSummary.totalUsers > 0 ? Math.round((statsSummary.activeUsers / statsSummary.totalUsers) * 100) : 0}%
             </div>
           </div>
         </div>

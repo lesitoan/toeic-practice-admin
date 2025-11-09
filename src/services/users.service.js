@@ -143,8 +143,8 @@ class UsersService {
       const response = await apiClient.patch(`${API_ENDPOINTS.USERS.DELETE}/${id}`);
       return response.data;
     } catch (error) {
-      console.error('Restore user error:', error);
-      throw error;
+      //console.error('Restore user error:', error);
+      //throw error;
     }
   }
 }
