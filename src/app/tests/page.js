@@ -5,7 +5,9 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import TestsStatsCards from '@/components/tests/TestsStatsCards';
 import TestsFilters from '@/components/tests/TestsFilters';
 import TestsTable from '@/components/tests/TestsTable';
+import CreateTestModal from '@/components/tests/CreateTestModal';
 import { PlusIcon } from '@heroicons/react/24/outline';
+import { toast } from 'react-toastify';
 
 export default function Tests() {
   const [tests, setTests] = useState([]);
@@ -44,6 +46,13 @@ export default function Tests() {
 
   const handleAssign = (test) => {
     console.log('Assign test:', test);
+  };
+
+  const handleCreateTest = (testData) => {
+    console.log('Creating test with data:', testData);
+    // TODO: Implement API call to create test
+    toast.success(`Test "${testData.name}" created successfully!`);
+    // You can add the test to the list here or refresh from API
   };
 
   return (
@@ -95,6 +104,13 @@ export default function Tests() {
           />
         </div>
       </div>
+
+      {/* Create Test Modal */}
+      <CreateTestModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSave={handleCreateTest}
+      />
     </DashboardLayout>
   );
 }

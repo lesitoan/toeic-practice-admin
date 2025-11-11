@@ -1,7 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import StatCard from '@/components/ui/StatCard';
+import AddUserModal from '@/components/users/AddUserModal';
 import { 
   UsersIcon, 
   DocumentTextIcon, 
@@ -11,43 +13,44 @@ import {
 
 const stats = [
  
+  
 ];
 
 const recentActivity = [
   {
     id: 1,
-    user: 'Sarah Johnson',
-    action: 'completed TOEIC Practice Test #12',
+    user: 'Bé Tòn',
+    action: 'Hoàn thành bài kiểm tra TOEIC 1',
     score: '85%',
     time: '2 minutes ago',
-    avatar: 'SJ',
+    avatar: 'TT',
   },
   {
     id: 2,
-    user: 'Michael Chen',
-    action: 'started TOEIC Practice Test #15',
+    user: 'Hòa Minzy',
+    action: 'Bắt đầu TOEIC Practice Test 2',
     time: '5 minutes ago',
     avatar: 'MC',
   },
   {
     id: 3,
-    user: 'Emily Rodriguez',
-    action: 'completed TOEIC Practice Test #8',
+    user: 'Con cá',
+    action: 'Hoàn thành TOEIC Practice Test 8',
     score: '92%',
     time: '12 minutes ago',
-    avatar: 'ER',
+    avatar: 'CC',
   },
   {
     id: 4,
-    user: 'David Kim',
-    action: 'registered for new account',
+    user: 'Kim Chi',
+    action: 'Đăng kí tài khoản mới',
     time: '18 minutes ago',
     avatar: 'DK',
   },
   {
     id: 5,
-    user: 'Lisa Thompson',
-    action: 'completed TOEIC Practice Test #3',
+    user: 'Dinh Luu',
+    action: 'Hoàn thành TOEIC Practice Test 3',
     score: '76%',
     time: '25 minutes ago',
     avatar: 'LT',
@@ -55,6 +58,13 @@ const recentActivity = [
 ];
 
 export default function Dashboard() {
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  const handleAddUser = () => {
+    // User list will be refreshed when navigating to users page
+    setIsAddModalOpen(false);
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -154,7 +164,10 @@ export default function Dashboard() {
           <div className="px-4 py-5 sm:p-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <button className="relative group bg-white p-6 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:shadow-md transition-all">
+              <button 
+                onClick={() => setIsAddModalOpen(true)}
+                className="relative group bg-white p-6 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:shadow-md transition-all"
+              >
                 <div>
                   <span className="rounded-lg inline-flex p-3 bg-blue-50 text-blue-700 ring-4 ring-white">
                     <UsersIcon className="h-6 w-6" />
@@ -220,6 +233,13 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+
+        {/* Add User Modal */}
+        <AddUserModal
+          isOpen={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
+          onSave={handleAddUser}
+        />
       </div>
     </DashboardLayout>
   );

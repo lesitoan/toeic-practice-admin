@@ -11,6 +11,7 @@ import { toast } from 'react-toastify';
 
 import UserDetailModal from '@/components/users/UserDetailModal';
 import EditUserModal from '@/components/users/EditUserModal';
+import AddUserModal from '@/components/users/AddUserModal';
 
 export default function Users() {
   const [users, setUsers] = useState([]);
@@ -115,7 +116,10 @@ export default function Users() {
   };
 
   const handleSaveUser = () => {
-    toast.success('User updated successfully');
+    fetchUsers(pagination.page, pagination.limit); // Refresh the list
+  };
+
+  const handleAddUser = () => {
     fetchUsers(pagination.page, pagination.limit); // Refresh the list
   };
 
@@ -234,6 +238,15 @@ export default function Users() {
             setEditingUser(null);
           }}
           onSave={handleSaveUser}
+        />
+
+        {/* Add User Modal */}
+        <AddUserModal
+          isOpen={isAddModalOpen}
+          onClose={() => {
+            setIsAddModalOpen(false);
+          }}
+          onSave={handleAddUser}
         />
       </div>
     </DashboardLayout>

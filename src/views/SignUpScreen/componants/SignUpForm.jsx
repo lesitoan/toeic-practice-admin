@@ -65,7 +65,7 @@ const SignUpForm = () => {
         age: data.age,
         avatar: data.avatar || "",
         password: data.password,
-        extra_fields: data.extra_fields || {}
+        extra_fields: null
       });
       toast.success('Đăng ký tài khoản thành công!');
       timeoutRef.current = setTimeout(() => {

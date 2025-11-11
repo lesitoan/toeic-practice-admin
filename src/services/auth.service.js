@@ -194,7 +194,7 @@ class AuthService {
         age: userData.age || new Date().toISOString().split('T')[0],
         avatar: userData.avatar || "",
         password: userData.password,
-        extra_fields: userData.extra_fields || {}
+        extra_fields: null
       });
 
       return response.data;
