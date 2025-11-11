@@ -1,0 +1,157 @@
+Date : 2025-11-10 22:20:50
+Directory : c:\Users\khoad\texxxttt\toeic-practice-admin
+Total : 87 files,  24030 codes, 283 comments, 843 blanks, all 25156 lines
+
+Languages
++--------------------+------------+------------+------------+------------+------------+
+| language           | files      | code       | comment    | blank      | total      |
++--------------------+------------+------------+------------+------------+------------+
+| JSON               |          2 |     16,569 |          0 |          2 |     16,571 |
+| JavaScript         |         73 |      6,319 |        235 |        686 |      7,240 |
+| JavaScript JSX     |          5 |        571 |         35 |         57 |        663 |
+| Markdown           |          2 |        376 |          0 |         73 |        449 |
+| TypeScript JSX     |          2 |        150 |          7 |         17 |        174 |
+| JSON with Comments |          2 |         29 |          0 |          3 |         32 |
+| PostCSS            |          1 |         16 |          6 |          5 |         27 |
++--------------------+------------+------------+------------+------------+------------+
+
+Directories
++-------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                            | files      | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                               |         87 |     24,030 |        283 |        843 |     25,156 |
+| . (Files)                                                                                       |         10 |     17,077 |          4 |         88 |     17,169 |
+| components                                                                                      |          1 |         59 |          0 |         10 |         69 |
+| src                                                                                             |         76 |      6,894 |        279 |        745 |      7,918 |
+| src\app                                                                                         |         13 |      1,026 |         38 |        131 |      1,195 |
+| src\app (Files)                                                                                 |          3 |         64 |          1 |         17 |         82 |
+| src\app\analytics                                                                               |          1 |         64 |          1 |         10 |         75 |
+| src\app\dashboard                                                                               |          1 |        229 |          1 |         16 |        246 |
+| src\app\login                                                                                   |          1 |          4 |          0 |          2 |          6 |
+| src\app\results                                                                                 |          1 |         66 |          4 |         10 |         80 |
+| src\app\settings                                                                                |          1 |         57 |          0 |         10 |         67 |
+| src\app\sign-up                                                                                 |          1 |          4 |          0 |          2 |          6 |
+| src\app\tests                                                                                   |          1 |         86 |          1 |         13 |        100 |
+| src\app\users                                                                                   |          2 |        300 |         27 |         32 |        359 |
+| src\app\vocabulary                                                                              |          1 |        152 |          3 |         19 |        174 |
+| src\components                                                                                  |         41 |      3,882 |         68 |        367 |      4,317 |
+| src\components (Files)                                                                          |          1 |         51 |         15 |         12 |         78 |
+| src\components\analytics                                                                        |          6 |        342 |          1 |         27 |        370 |
+| src\components\auth                                                                             |          1 |         25 |          0 |          8 |         33 |
+| src\components\charts                                                                           |          3 |        703 |         18 |         60 |        781 |
+| src\components\layout                                                                           |          3 |        316 |          5 |         26 |        347 |
+| src\components\results                                                                          |          4 |        211 |          2 |         19 |        232 |
+| src\components\settings                                                                         |          5 |        367 |          1 |         42 |        410 |
+| src\components\tests                                                                            |          4 |        236 |          1 |         18 |        255 |
+| src\components\ui                                                                               |          2 |        225 |          3 |         14 |        242 |
+| src\components\users                                                                            |          7 |        845 |         14 |         88 |        947 |
+| src\components\vocabulary                                                                       |          5 |        561 |          8 |         53 |        622 |
+| src\config                                                                                      |          1 |         21 |          0 |          2 |         23 |
+| src\constants                                                                                   |          7 |        447 |         24 |         31 |        502 |
+| src\contexts                                                                                    |          1 |        115 |          3 |         18 |        136 |
+| src\services                                                                                    |          4 |        748 |         97 |        119 |        964 |
+| src\stores                                                                                      |          2 |          0 |          0 |          2 |          2 |
+| src\styles                                                                                      |          1 |         16 |          6 |          5 |         27 |
+| src\utils                                                                                       |          1 |         68 |          8 |         13 |         89 |
+| src\views                                                                                       |          5 |        571 |         35 |         57 |        663 |
+| src\views\LoginScreen                                                                           |          3 |        222 |         17 |         30 |        269 |
+| src\views\LoginScreen (Files)                                                                   |          1 |         10 |          0 |          2 |         12 |
+| src\views\LoginScreen\components                                                                |          2 |        212 |         17 |         28 |        257 |
+| src\views\SignUpScreen                                                                          |          2 |        349 |         18 |         27 |        394 |
+| src\views\SignUpScreen (Files)                                                                  |          1 |         20 |          0 |          4 |         24 |
+| src\views\SignUpScreen\componants                                                               |          1 |        329 |         18 |         23 |        370 |
++-------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-------------------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+
+| filename                                                                                        | language           | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+
+| c:\Users\khoad\texxxttt\toeic-practice-admin\API_DOCUMENTATION.md                               | Markdown           |        353 |          0 |         59 |        412 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\README.md                                          | Markdown           |         23 |          0 |         14 |         37 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\components\UserRoleEditor.tsx                      | TypeScript JSX     |         59 |          0 |         10 |         69 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\eslint.config.mjs                                  | JavaScript         |         40 |          0 |          2 |         42 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\jsconfig.json                                      | JSON with Comments |          0 |          0 |          1 |          1 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\next.config.mjs                                    | JavaScript         |          3 |          2 |          3 |          8 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\package-lock.json                                  | JSON               |     16,523 |          0 |          1 |     16,524 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\package.json                                       | JSON               |         46 |          0 |          1 |         47 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\postcss.config.mjs                                 | JavaScript         |          4 |          0 |          2 |          6 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\app\analytics\page.js                          | JavaScript         |         64 |          1 |         10 |         75 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\app\dashboard\page.js                          | JavaScript         |        229 |          1 |         16 |        246 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\app\layout.js                                  | JavaScript         |         29 |          0 |          5 |         34 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\app\login\page.js                              | JavaScript         |          4 |          0 |          2 |          6 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\app\page.js                                    | JavaScript         |         30 |          1 |          9 |         40 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\app\providers.js                               | JavaScript         |          5 |          0 |          3 |          8 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\app\results\page.js                            | JavaScript         |         66 |          4 |         10 |         80 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\app\settings\page.js                           | JavaScript         |         57 |          0 |         10 |         67 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\app\sign-up\page.js                            | JavaScript         |          4 |          0 |          2 |          6 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\app\tests\page.js                              | JavaScript         |         86 |          1 |         13 |        100 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\app\users\page.js                              | JavaScript         |        209 |         20 |         25 |        254 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\app\users\user.tsx                             | TypeScript JSX     |         91 |          7 |          7 |        105 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\app\vocabulary\page.js                         | JavaScript         |        152 |          3 |         19 |        174 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\UserRoleEditor.js                   | JavaScript         |         51 |         15 |         12 |         78 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\analytics\AnalyticsMetricsCards.js  | JavaScript         |         80 |          1 |          5 |         86 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\analytics\RecentActivity.js         | JavaScript         |         35 |          0 |          4 |         39 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\analytics\ScoreDistributionChart.js | JavaScript         |         39 |          0 |          4 |         43 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\analytics\ScoreTrendChart.js        | JavaScript         |         66 |          0 |          6 |         72 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\analytics\TestCompletionRates.js    | JavaScript         |         45 |          0 |          4 |         49 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\analytics\TopStudentsTable.js       | JavaScript         |         77 |          0 |          4 |         81 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\auth\ProtectedRoute.js              | JavaScript         |         25 |          0 |          8 |         33 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\charts\NewUsersChart.js             | JavaScript         |        233 |          6 |         23 |        262 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\charts\UserActivityChart.js         | JavaScript         |        218 |          5 |         16 |        239 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\charts\UserGrowthChart.js           | JavaScript         |        252 |          7 |         21 |        280 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\layout\DashboardLayout.js           | JavaScript         |         23 |          0 |          3 |         26 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\layout\Navbar.js                    | JavaScript         |        133 |          3 |         14 |        150 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\layout\Sidebar.js                   | JavaScript         |        160 |          2 |          9 |        171 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\results\ResultsFilters.js           | JavaScript         |         51 |          0 |          5 |         56 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\results\ResultsStatsCards.js        | JavaScript         |         71 |          1 |          5 |         77 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\results\ResultsTable.js             | JavaScript         |         34 |          0 |          3 |         37 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\results\ScoreDistributionChart.js   | JavaScript         |         55 |          1 |          6 |         62 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\settings\NotificationsTab.js        | JavaScript         |         52 |          0 |          8 |         60 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\settings\PreferencesTab.js          | JavaScript         |        101 |          0 |         11 |        112 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\settings\ProfileTab.js              | JavaScript         |         91 |          0 |          8 |         99 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\settings\SecurityTab.js             | JavaScript         |         96 |          1 |         12 |        109 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\settings\SettingsTabs.js            | JavaScript         |         27 |          0 |          3 |         30 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\tests\TestActions.js                | JavaScript         |         37 |          0 |          3 |         40 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\tests\TestsFilters.js               | JavaScript         |         81 |          0 |          7 |         88 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\tests\TestsStatsCards.js            | JavaScript         |         71 |          1 |          5 |         77 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\tests\TestsTable.js                 | JavaScript         |         47 |          0 |          3 |         50 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\ui\DataTable.js                     | JavaScript         |        194 |          3 |         14 |        211 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\ui\StatCard.js                      | JavaScript         |         31 |          0 |          0 |         31 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\users\AddUserModal.js               | JavaScript         |        216 |          1 |         18 |        235 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\users\EditUserModal.js              | JavaScript         |        238 |          8 |         23 |        269 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\users\UserActions.js                | JavaScript         |         93 |          1 |         16 |        110 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\users\UserDetailModal.js            | JavaScript         |        181 |          3 |         18 |        202 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\users\UsersChartsSection.js         | JavaScript         |         17 |          0 |          5 |         22 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\users\UsersStatsCards.js            | JavaScript         |         76 |          1 |          5 |         82 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\users\UsersTable.js                 | JavaScript         |         24 |          0 |          3 |         27 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\vocabulary\VocabularyDetail.js      | JavaScript         |        119 |          0 |         12 |        131 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\vocabulary\VocabularyFilters.js     | JavaScript         |         81 |          0 |          8 |         89 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\vocabulary\VocabularyForm.js        | JavaScript         |        249 |          5 |         22 |        276 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\vocabulary\VocabularyStatsCards.js  | JavaScript         |         76 |          2 |          6 |         84 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\components\vocabulary\VocabularyTable.js       | JavaScript         |         36 |          1 |          5 |         42 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\config\api.js                                  | JavaScript         |         21 |          0 |          2 |         23 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\constants\analytics.js                         | JavaScript         |         12 |          2 |          2 |         16 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\constants\common.js                            | JavaScript         |          1 |          0 |          0 |          1 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\constants\results.js                           | JavaScript         |        104 |          3 |          4 |        111 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\constants\settings.js                          | JavaScript         |         52 |          6 |          7 |         65 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\constants\tests.js                             | JavaScript         |         79 |          4 |          4 |         87 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\constants\users.js                             | JavaScript         |         79 |          3 |          7 |         89 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\constants\vocabulary.js                        | JavaScript         |        120 |          6 |          7 |        133 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\contexts\AuthContext.js                        | JavaScript         |        115 |          3 |         18 |        136 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\services\auth.service.js                       | JavaScript         |        334 |         44 |         64 |        442 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\services\userStats.service.js                  | JavaScript         |        174 |         13 |         17 |        204 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\services\users.service.js                      | JavaScript         |        110 |         21 |         22 |        153 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\services\vocabulary.service.js                 | JavaScript         |        130 |         19 |         16 |        165 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\stores\auth.slice.js                           | JavaScript         |          0 |          0 |          1 |          1 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\stores\index.js                                | JavaScript         |          0 |          0 |          1 |          1 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\styles\globals.css                             | PostCSS            |         16 |          6 |          5 |         27 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\utils\axios.js                                 | JavaScript         |         68 |          8 |         13 |         89 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\views\LoginScreen\components\AuthWrapper.jsx   | JavaScript JSX     |         51 |          7 |          7 |         65 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\views\LoginScreen\components\LoginForm.jsx     | JavaScript JSX     |        161 |         10 |         21 |        192 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\views\LoginScreen\index.jsx                    | JavaScript JSX     |         10 |          0 |          2 |         12 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\views\SignUpScreen\componants\SignUpForm.jsx   | JavaScript JSX     |        329 |         18 |         23 |        370 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\src\views\SignUpScreen\index.jsx                   | JavaScript JSX     |         20 |          0 |          4 |         24 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\tailwind.config.js                                 | JavaScript         |         56 |          2 |          3 |         61 |
+| c:\Users\khoad\texxxttt\toeic-practice-admin\tsconfig.json                                      | JSON with Comments |         29 |          0 |          2 |         31 |
+| Total                                                                                           |                    |     24,030 |        283 |        843 |     25,156 |
++-------------------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+
