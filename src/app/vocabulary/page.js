@@ -11,6 +11,12 @@ import VocabularyDetail from '@/components/vocabulary/VocabularyDetail';
 import vocabularyService from '@/services/vocabulary.service';
 import { DEFAULT_FILTERS } from '@/constants/vocabulary';
 import { PlusIcon } from '@heroicons/react/24/outline';
+import { 
+  MOCK_VOCABULARIES, 
+  MOCK_CATEGORIES, 
+  MOCK_DIFFICULTY_LEVELS, 
+  MOCK_PARTS_OF_SPEECH 
+} from '@/data/mockVocabulary';
 
 export default function VocabularyPage() {
   const [vocabularies, setVocabularies] = useState([]);
@@ -30,38 +36,45 @@ export default function VocabularyPage() {
     loadFilterOptions();
   }, [filters]);
 
-  const loadVocabularies = async () => {
-    try {
-      setIsLoading(true);
-      const response = await vocabularyService.getAllVocabularies(filters);
-      // Ensure we have an array - handle both response.data (array) and response.data.data (nested structure)
-      const vocabulariesData = Array.isArray(response?.data) 
-        ? response.data 
-        : (Array.isArray(response?.data?.data) ? response.data.data : []);
-      setVocabularies(vocabulariesData);
-    } catch (error) {
-      console.error('Error loading vocabularies:', error);
-      toast.error('Failed to load vocabularies');
-      setVocabularies([]); // Set empty array on error
-    } finally {
+  const loadVocabularies = () => {
+    setIsLoading(true);
+    
+    // Simulate API delay
+    setTimeout(() => {
+      let filteredData = [...MOCK_VOCABULARIES];
+
+      // Apply filters
+      if (filters.search) {
+        const searchLower = filters.search.toLowerCase();
+        filteredData = filteredData.filter(item => 
+          item.word.toLowerCase().includes(searchLower) ||
+          item.definition.toLowerCase().includes(searchLower) ||
+          (item.example && item.example.toLowerCase().includes(searchLower))
+        );
+      }
+
+      if (filters.difficulty) {
+        filteredData = filteredData.filter(item => item.difficulty === filters.difficulty);
+      }
+
+      if (filters.category) {
+        filteredData = filteredData.filter(item => item.category === filters.category);
+      }
+
+      if (filters.partOfSpeech) {
+        filteredData = filteredData.filter(item => item.partOfSpeech === filters.partOfSpeech);
+      }
+
+      setVocabularies(filteredData);
       setIsLoading(false);
-    }
+    }, 300);
   };
 
-  const loadFilterOptions = async () => {
-    try {
-      const [categoriesData, difficultyData, partsData] = await Promise.all([
-        vocabularyService.getCategories(),
-        vocabularyService.getDifficultyLevels(),
-        vocabularyService.getPartsOfSpeech()
-      ]);
-      
-      setCategories(categoriesData);
-      setDifficultyLevels(difficultyData);
-      setPartsOfSpeech(partsData);
-    } catch (error) {
-      // console.error('Error loading filter options:', error);
-    }
+  const loadFilterOptions = () => {
+    // Use mock data for filter options
+    setCategories(MOCK_CATEGORIES);
+    setDifficultyLevels(MOCK_DIFFICULTY_LEVELS);
+    setPartsOfSpeech(MOCK_PARTS_OF_SPEECH);
   };
 
   const handleAddVocabulary = () => {
@@ -80,22 +93,34 @@ export default function VocabularyPage() {
     setIsDetailOpen(false); // Close detail view if open
   };
 
-  const handleDeleteVocabulary = async (vocabulary) => {
+  const handleDeleteVocabulary = (vocabulary) => {
     if (window.confirm(`Are you sure you want to delete "${vocabulary.word}"?`)) {
-      try {
-        await vocabularyService.deleteVocabulary(vocabulary.id);
-        toast.success('Vocabulary deleted successfully');
-        loadVocabularies();
-      } catch (error) {
-        console.error('Error deleting vocabulary:', error);
-        toast.error('Failed to delete vocabulary');
-      }
+      // Use mock data - just remove from state
+      setVocabularies(prev => prev.filter(item => item.id !== vocabulary.id));
+      toast.success('Vocabulary deleted successfully');
     }
   };
 
-  const handleSaveVocabulary = () => {
-    toast.success(editingVocabulary ? 'Vocabulary updated successfully' : 'Vocabulary created successfully');
-    loadVocabularies();
+  const handleSaveVocabulary = (vocabularyData) => {
+    if (editingVocabulary) {
+      // Update existing vocabulary
+      setVocabularies(prev => prev.map(item => 
+        item.id === editingVocabulary.id 
+          ? { ...item, ...vocabularyData }
+          : item
+      ));
+      toast.success('Vocabulary updated successfully');
+    } else {
+      // Add new vocabulary
+      const newVocabulary = {
+        ...vocabularyData,
+        id: Date.now(), // Generate temporary ID
+      };
+      setVocabularies(prev => [...prev, newVocabulary]);
+      toast.success('Vocabulary created successfully');
+    }
+    setIsFormOpen(false);
+    setEditingVocabulary(null);
   };
 
   const handleFilterChange = (key, value) => {

@@ -6,6 +6,7 @@ import TestsStatsCards from '@/components/tests/TestsStatsCards';
 import TestsFilters from '@/components/tests/TestsFilters';
 import TestsTable from '@/components/tests/TestsTable';
 import CreateTestModal from '@/components/tests/CreateTestModal';
+import CreateTestRunModal from '@/components/tests/CreateTestRunModal';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
 import testsService from '@/services/tests.service';
@@ -13,6 +14,8 @@ import testsService from '@/services/tests.service';
 export default function Tests() {
   const [tests, setTests] = useState([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isTestRunModalOpen, setIsTestRunModalOpen] = useState(false);
+  const [selectedTest, setSelectedTest] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -88,8 +91,14 @@ export default function Tests() {
     console.log('View test:', test);
   };
 
-  const handleAssign = (test) => {
-    console.log('Assign test:', test);
+  const handleRun = (test) => {
+    setSelectedTest(test);
+    setIsTestRunModalOpen(true);
+  };
+
+  const handleTestRunSuccess = (response) => {
+    console.log('Test run created:', response);
+    toast.success('Test run created successfully!');
   };
 
   const handleCreateTest = async (testData) => {
@@ -172,6 +181,7 @@ export default function Tests() {
               tests={filteredTests}
               onView={handleView}
               onEdit={handleEdit}
+              onRun={handleRun}
               onDelete={handleDelete}
             />
           )}
@@ -183,6 +193,17 @@ export default function Tests() {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onSave={handleCreateTest}
+      />
+
+      {/* Create Test Run Modal */}
+      <CreateTestRunModal
+        isOpen={isTestRunModalOpen}
+        onClose={() => {
+          setIsTestRunModalOpen(false);
+          setSelectedTest(null);
+        }}
+        test={selectedTest}
+        onSuccess={handleTestRunSuccess}
       />
     </DashboardLayout>
   );

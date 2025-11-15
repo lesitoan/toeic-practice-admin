@@ -74,6 +74,16 @@ class TestsService {
       throw error;
     }
   }
+
+  async createTestRun(payload) {
+    try {
+      const response = await apiClient.post(API_ENDPOINTS.TESTS.CREATE_TEST_RUN, payload);
+      return response.data;
+    } catch (error) {
+      console.error('Create test run error:', error);
+      throw error;
+    }
+  }
 }
 
 export default new TestsService();
