@@ -45,7 +45,7 @@ export default function Navbar({ onMenuClick }) {
   const handleSignOut = async () => {
     try {
       await authService.logout();
-      //toast.success('Đăng xuất thành công!');
+      //  toast.success('Đăng xuất thành công!');
       router.push('/login');
     } catch (error) {
       console.error('Sign out error:', error);
@@ -102,19 +102,22 @@ export default function Navbar({ onMenuClick }) {
             className="flex items-center gap-x-4 text-sm font-medium leading-6 text-gray-900"
             onClick={() => setIsProfileOpen(!isProfileOpen)}
           >
-            {user?.avatar ? (
-              <img
-                className="h-8 w-8 rounded-full bg-gray-50 object-cover"
-                src={user.avatar}
-                alt={user.name || 'User'}
-              />
-            ) : (
-              <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-                <span className="text-xs font-medium text-blue-700">
-                  {user?.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'U'}
-                </span>
-              </div>
-            )}
+            {(() => {
+              const hasAvatar = user?.avatar && user.avatar.trim() !== '' && 
+                new RegExp('^(https?://.*\\.(?:png|jpg|jpeg|gif|webp|svg|bmp))(?:\\?.*)?$').test(user.avatar);
+              const avatar = hasAvatar ? user.avatar : '/image/defaultAvt.jpg';
+              
+              return (
+                <img
+                  className="h-8 w-8 rounded-full bg-gray-50 object-cover"
+                  src={avatar}
+                  alt={user?.name || 'User'}
+                  onError={(e) => {
+                    e.target.src = '/image/defaultAvt.jpg';
+                  }}
+                />
+              );
+            })()}
             <span className="hidden lg:flex lg:items-center">
               {loading ? 'Loading...' : (user?.name || 'User')}
               <ChevronDownIcon className="ml-2 h-5 w-5 text-gray-400" />

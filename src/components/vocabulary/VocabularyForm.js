@@ -3,7 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import vocabularyService from '@/services/vocabulary.service';
+import { 
+  MOCK_CATEGORIES, 
+  MOCK_DIFFICULTY_LEVELS, 
+  MOCK_PARTS_OF_SPEECH 
+} from '@/data/mockVocabulary';
 
 export default function VocabularyForm({ 
   isOpen, 
@@ -35,23 +39,10 @@ export default function VocabularyForm({
   });
 
   useEffect(() => {
-    const loadFormData = async () => {
-      try {
-        const [categoriesData, difficultyData, partsData] = await Promise.all([
-          vocabularyService.getCategories(),
-          vocabularyService.getDifficultyLevels(),
-          vocabularyService.getPartsOfSpeech()
-        ]);
-        
-        setCategories(categoriesData);
-        setDifficultyLevels(difficultyData);
-        setPartsOfSpeech(partsData);
-      } catch (error) {
-        console.error('Error loading form data:', error);
-      }
-    };
-
-    loadFormData();
+    // Use mock data for filter options
+    setCategories(MOCK_CATEGORIES);
+    setDifficultyLevels(MOCK_DIFFICULTY_LEVELS);
+    setPartsOfSpeech(MOCK_PARTS_OF_SPEECH);
   }, []);
 
   useEffect(() => {
@@ -68,26 +59,15 @@ export default function VocabularyForm({
     }
   }, [vocabulary, setValue, reset]);
 
-  const onSubmit = async (data) => {
+  const onSubmit = (data) => {
     setIsLoading(true);
-    try {
-      if (vocabulary) {
-        // Update existing vocabulary
-        await vocabularyService.updateVocabulary(vocabulary.id, data);
-      } else {
-        // Create new vocabulary
-        await vocabularyService.createVocabulary(data);
-      }
-      
-      onSave();
-      onClose();
+    // Simulate API delay
+    setTimeout(() => {
+      // Pass data to parent component to handle with mock data
+      onSave(data);
       reset();
-    } catch (error) {
-      console.error('Error saving vocabulary:', error);
-      // You might want to show a toast notification here
-    } finally {
       setIsLoading(false);
-    }
+    }, 300);
   };
 
   const handleClose = () => {
