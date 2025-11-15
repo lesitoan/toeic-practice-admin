@@ -2,7 +2,7 @@ import React from 'react';
 import { TEST_COLUMNS } from '@/constants/tests';
 import TestActions from './TestActions';
 
-const TestsTable = ({ tests, onView, onEdit, onAssign, onDelete }) => {
+const TestsTable = ({ tests, onView, onEdit, onDelete }) => {
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full divide-y divide-gray-200">
@@ -34,7 +34,6 @@ const TestsTable = ({ tests, onView, onEdit, onAssign, onDelete }) => {
                   test={test}
                   onView={onView}
                   onEdit={onEdit}
-                  onAssign={onAssign}
                   onDelete={onDelete}
                 />
               </td>

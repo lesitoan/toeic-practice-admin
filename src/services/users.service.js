@@ -144,7 +144,7 @@ class UsersService {
       return response.data;
     } catch (error) {
       //console.error('Restore user error:', error);
-      //throw error;
+      throw error;
     }
   }
 }

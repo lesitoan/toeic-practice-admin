@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { XMarkIcon, PencilIcon } from '@heroicons/react/24/outline';
+import { useEffect, useState } from 'react';
+import { XMarkIcon, PencilIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import { toast } from 'react-toastify';
 import PartEditor from './PartEditor';
+import testsService from '@/services/tests.service';
 
 // TOEIC Test Parts
 const TOEIC_PARTS = [
@@ -17,8 +19,13 @@ const TOEIC_PARTS = [
 
 export default function CreateTestModal({ isOpen, onClose, onSave }) {
   const [testName, setTestName] = useState('');
+  const [testDescription, setTestDescription] = useState('');
+  const [testStatus, setTestStatus] = useState('draft');
   const [selectedPart, setSelectedPart] = useState(null);
   const [partsData, setPartsData] = useState({});
+  const [testTemplateId, setTestTemplateId] = useState(null);
+  const [isInitializing, setIsInitializing] = useState(false);
+  const [initError, setInitError] = useState(null);
 
   const handleEditPart = (part) => {
     setSelectedPart(part);
@@ -34,10 +41,44 @@ export default function CreateTestModal({ isOpen, onClose, onSave }) {
 
   const handleClose = () => {
     setTestName('');
+    setTestDescription('');
+    setTestStatus('draft');
     setSelectedPart(null);
     setPartsData({});
+    setTestTemplateId(null);
+    setInitError(null);
     onClose();
   };
+
+  const initializeDraftTest = async () => {
+    setIsInitializing(true);
+    setInitError(null);
+    try {
+      const response = await testsService.createDraftTest('default');
+      setTestTemplateId(response.test_template_id);
+    } catch (error) {
+      console.error('Failed to initialize draft test:', error);
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Failed to initialize draft test. Please try again.';
+      setInitError(message);
+      toast.error(message);
+    } finally {
+      setIsInitializing(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      initializeDraftTest();
+    } else {
+      setTestTemplateId(null);
+      setInitError(null);
+      setPartsData({});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
   const handleCreateTest = () => {
     if (!testName.trim()) {
@@ -45,8 +86,16 @@ export default function CreateTestModal({ isOpen, onClose, onSave }) {
       return;
     }
 
+    if (!testTemplateId) {
+      toast.error('Test template is not ready yet. Please wait a moment and try again.');
+      return;
+    }
+
     const testData = {
       name: testName,
+      description: testDescription,
+      status: testStatus,
+      templateId: testTemplateId,
       parts: partsData
     };
 
@@ -64,6 +113,12 @@ export default function CreateTestModal({ isOpen, onClose, onSave }) {
         initialData={partsData[selectedPart.id] || {}}
         onSave={(data) => handleSavePart(selectedPart.id, data)}
         onClose={() => setSelectedPart(null)}
+        testTemplateId={testTemplateId}
+        templateMeta={{
+          name: testName,
+          description: testDescription,
+          status: testStatus,
+        }}
       />
     );
   }
@@ -89,6 +144,40 @@ export default function CreateTestModal({ isOpen, onClose, onSave }) {
 
           {/* Content */}
           <div className="px-6 py-4">
+            {/* Template Status */}
+            <div className="mb-4">
+              <div className="flex items-center justify-between text-sm">
+                <div>
+                  <p className="font-medium text-gray-800">Test Template</p>
+                  {testTemplateId ? (
+                    <p className="text-gray-500">Template ID: {testTemplateId}</p>
+                  ) : (
+                    <p className="text-gray-500">
+                      {isInitializing
+                        ? 'Initializing draft test...'
+                        : initError
+                          ? 'Initialization failed'
+                          : 'Waiting for initialization'}
+                    </p>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={initializeDraftTest}
+                  disabled={isInitializing}
+                  className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 disabled:opacity-50"
+                >
+                  <ArrowPathIcon className={`h-4 w-4 mr-1 ${isInitializing ? 'animate-spin' : ''}`} />
+                  Refresh
+                </button>
+              </div>
+              {initError && (
+                <p className="mt-2 text-sm text-red-600">
+                  {initError}
+                </p>
+              )}
+            </div>
+
             {/* Test Name Field */}
             <div className="mb-6">
               <label htmlFor="testName" className="block text-sm font-medium text-gray-700 mb-2">
@@ -102,6 +191,38 @@ export default function CreateTestModal({ isOpen, onClose, onSave }) {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Enter test name (e.g., TOEIC Practice Test 1)"
               />
+            </div>
+
+            {/* Description Field */}
+            <div className="mb-6">
+              <label htmlFor="testDescription" className="block text-sm font-medium text-gray-700 mb-2">
+                Description
+              </label>
+              <textarea
+                id="testDescription"
+                value={testDescription}
+                onChange={(e) => setTestDescription(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                rows={3}
+                placeholder="Short description for this template"
+              />
+            </div>
+
+            {/* Status Field */}
+            <div className="mb-6">
+              <label htmlFor="testStatus" className="block text-sm font-medium text-gray-700 mb-2">
+                Status
+              </label>
+              <select
+                id="testStatus"
+                value={testStatus}
+                onChange={(e) => setTestStatus(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+                <option value="active">Active</option>
+              </select>
             </div>
 
             {/* Parts List */}
@@ -130,7 +251,8 @@ export default function CreateTestModal({ isOpen, onClose, onSave }) {
                       </div>
                       <button
                         onClick={() => handleEditPart(part)}
-                        className="ml-4 inline-flex items-center px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                        disabled={!testTemplateId || isInitializing}
+                        className="ml-4 inline-flex items-center px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <PencilIcon className="h-4 w-4 mr-1" />
                         {hasData ? 'Edit' : 'Configure'}
