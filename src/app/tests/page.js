@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import TestsStatsCards from '@/components/tests/TestsStatsCards';
 import TestsFilters from '@/components/tests/TestsFilters';
@@ -8,20 +8,64 @@ import TestsTable from '@/components/tests/TestsTable';
 import CreateTestModal from '@/components/tests/CreateTestModal';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
+import testsService from '@/services/tests.service';
 
 export default function Tests() {
   const [tests, setTests] = useState([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
 
+  // Fetch tests from API
+  const fetchTests = async () => {
+    try {
+      setIsLoading(true);
+      const response = await testsService.getAllTests({
+        page: 1,
+        limit: 100,
+        sort_by: 'id',
+        sort_type: -1,
+        is_fetch_all: true,
+        name: searchTerm || 'default',
+      });
+      
+      // Map API response to match component structure
+      const mappedTests = (response.items || []).map(test => ({
+        id: test.id,
+        title: test.name,
+        name: test.name,
+        description: test.description || '',
+        status: test.status,
+        category: 'TOEIC Test', // Default category
+        difficulty: 'Intermediate', // Default difficulty
+        duration: '120 min', // Default duration
+        questions: 0, // Will be calculated if needed
+        assignedUsers: 0, // Will be calculated if needed
+        averageScore: 'N/A', // Will be calculated if needed
+        lastModified: 'N/A', // Will be calculated if needed
+      }));
+      
+      setTests(mappedTests);
+    } catch (error) {
+      console.error('Error fetching tests:', error);
+      toast.error('Failed to load tests. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTests();
+  }, []);
+
   // Filter tests based on search and filters
   const filteredTests = tests.filter(test => {
     const matchesSearch = !searchTerm || 
-      test.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      test.category.toLowerCase().includes(searchTerm.toLowerCase());
+      test.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      test.description?.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesCategory = !selectedCategory || test.category === selectedCategory;
     const matchesDifficulty = !selectedDifficulty || test.difficulty === selectedDifficulty;
@@ -48,11 +92,31 @@ export default function Tests() {
     console.log('Assign test:', test);
   };
 
-  const handleCreateTest = (testData) => {
-    console.log('Creating test with data:', testData);
-    // TODO: Implement API call to create test
-    toast.success(`Test "${testData.name}" created successfully!`);
-    // You can add the test to the list here or refresh from API
+  const handleCreateTest = async (testData) => {
+    try {
+      console.log('Creating test with data:', testData);
+      
+      // Check if all parts have been configured
+      const configuredParts = Object.keys(testData.parts || {}).length;
+      if (configuredParts === 0) {
+        toast.warning('Please configure at least one part before creating the test.');
+        return;
+      }
+
+      // The actual saving happens in PartEditor when each part is saved
+      // The enqueueTemplateImport API is called for each part
+      // Here we just confirm the test creation
+      toast.success(`Test "${testData.name}" created successfully! All configured parts have been saved.`);
+      
+      // Close modal and refresh tests list
+      setIsAddModalOpen(false);
+      
+      // Refresh tests list from API
+      await fetchTests();
+    } catch (error) {
+      console.error('Error creating test:', error);
+      toast.error('Failed to create test. Please try again.');
+    }
   };
 
   return (
@@ -95,13 +159,22 @@ export default function Tests() {
             totalCount={filteredTests.length}
           />
 
-          <TestsTable
-            tests={filteredTests}
-            onView={handleView}
-            onEdit={handleEdit}
-            onAssign={handleAssign}
-            onDelete={handleDelete}
-          />
+          {isLoading ? (
+            <div className="px-6 py-12 text-center">
+              <p className="text-gray-500">Loading tests...</p>
+            </div>
+          ) : filteredTests.length === 0 ? (
+            <div className="px-6 py-12 text-center">
+              <p className="text-gray-500">No tests found.</p>
+            </div>
+          ) : (
+            <TestsTable
+              tests={filteredTests}
+              onView={handleView}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+          )}
         </div>
       </div>
 

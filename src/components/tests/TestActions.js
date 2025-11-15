@@ -1,7 +1,7 @@
 import React from 'react';
 import { EyeIcon } from '@heroicons/react/24/outline';
 
-const TestActions = ({ test, onView, onEdit, onAssign, onDelete }) => {
+const TestActions = ({ test, onView, onEdit, onDelete }) => {
   return (
     <div className="flex items-center gap-2">
       <button
@@ -17,13 +17,6 @@ const TestActions = ({ test, onView, onEdit, onAssign, onDelete }) => {
         title="Edit test"
       >
         Edit
-      </button>
-      <button
-        onClick={() => onAssign(test)}
-        className="text-green-600 hover:text-green-900 text-sm"
-        title="Assign test"
-      >
-        Assign
       </button>
       <button
         onClick={() => onDelete(test)}

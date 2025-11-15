@@ -3,9 +3,10 @@ import React from 'react';
 const TestsStatsCards = ({ tests }) => {
   // Calculate statistics
   const totalTests = tests.length;
-  const publishedTests = tests.filter(t => t.status === 'Published').length;
-  const draftTests = tests.filter(t => t.status === 'Draft').length;
-  const totalUsers = tests.reduce((acc, test) => acc + test.assignedUsers, 0);
+  const activeTests = tests.filter(t => t.status === 'active').length;
+  const draftTests = tests.filter(t => t.status === 'draft').length;
+  const archivedTests = tests.filter(t => t.status === 'archived').length;
+  const totalUsers = tests.reduce((acc, test) => acc + (test.assignedUsers || 0), 0);
 
   const stats = [
     {
@@ -17,9 +18,9 @@ const TestsStatsCards = ({ tests }) => {
       textColor: 'text-blue-700'
     },
     {
-      label: 'Published',
-      value: publishedTests,
-      icon: 'P',
+      label: 'Active',
+      value: activeTests,
+      icon: 'A',
       color: 'green',
       bgColor: 'bg-green-100',
       textColor: 'text-green-700'
@@ -33,6 +34,14 @@ const TestsStatsCards = ({ tests }) => {
       textColor: 'text-yellow-700'
     },
     {
+      label: 'Archived',
+      value: archivedTests,
+      icon: 'A',
+      color: 'gray',
+      bgColor: 'bg-gray-100',
+      textColor: 'text-gray-700'
+    },
+    {
       label: 'Total Users',
       value: totalUsers,
       icon: 'U',
@@ -43,7 +52,7 @@ const TestsStatsCards = ({ tests }) => {
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
       {stats.map((stat, index) => (
         <div key={index} className="bg-white overflow-hidden shadow rounded-lg">
           <div className="p-5">

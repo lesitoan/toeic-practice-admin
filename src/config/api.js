@@ -21,6 +21,7 @@ export const API_ENDPOINTS = {
     CREATE_DRAFT: `${API_BASE_URL}api/v1/test/new_test`,
     SIGN_UPLOAD: `${API_BASE_URL}api/v1/test/sign-upload-cloudinary`,
     ENQUEUE_TEMPLATE: `${API_BASE_URL}api/v1/test`,
+    GET_ALL: `${API_BASE_URL}api/v1/test/test-all`,
   },
   ANALYTICS: `${API_BASE_URL}api/v1/analytics`,
 };
