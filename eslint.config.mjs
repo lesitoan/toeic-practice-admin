@@ -8,6 +8,9 @@ export default [
     ignores: ['.next/**', 'node_modules/**', 'dist/**', 'build/**'],
   },
   {
+    "extends": ["next/core-web-vitals"]
+  },
+  {
     files: ['**/*.{js,jsx}'],
     languageOptions: {
       ecmaVersion: 2021,
