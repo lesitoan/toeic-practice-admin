@@ -16,7 +16,12 @@ export const API_ENDPOINTS = {
     DELETE: `${API_BASE_URL}api/v1/users/account`,
   },
   VOCABULARY: `${API_BASE_URL}api/v1/vocabulary`,
-  TESTS: `${API_BASE_URL}api/v1/tests`,
+  TESTS: {
+    BASE: `${API_BASE_URL}api/v1/tests`,
+    CREATE_DRAFT: `${API_BASE_URL}api/v1/test/new_test`,
+    SIGN_UPLOAD: `${API_BASE_URL}api/v1/test/sign-upload-cloudinary`,
+    ENQUEUE_TEMPLATE: `${API_BASE_URL}api/v1/test`,
+  },
   ANALYTICS: `${API_BASE_URL}api/v1/analytics`,
 };
 

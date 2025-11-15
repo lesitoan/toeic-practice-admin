@@ -80,7 +80,7 @@ export const TEST_CATEGORIES = [
 
 // Test statuses
 export const TEST_STATUSES = [
-  { value: 'Published', label: 'Published', color: 'green' },
+  { value: 'Published', label: 'Published', color: 'red' },
   { value: 'Draft', label: 'Draft', color: 'gray' },
-  { value: 'Archived', label: 'Archived', color: 'gray' },
+  { value: 'active', label: 'active', color: 'green' },
 ];
