@@ -9,6 +9,7 @@ export default function DataTable({
   onEdit, 
   onDelete,
   onViewDetail,
+  onViewResult,
   onRestore,
   ActionsComponent,
   searchable = true,
@@ -112,7 +113,7 @@ export default function DataTable({
                   </div>
                 </th>
               ))}
-              {(onEdit || onDelete || ActionsComponent) && (
+              {(onEdit || onDelete || onViewResult || ActionsComponent) && (
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
@@ -127,7 +128,7 @@ export default function DataTable({
                     {column.render ? column.render(item[column.key], item) : item[column.key]}
                   </td>
                 ))}
-                {(onEdit || onDelete || ActionsComponent) && (
+                {(onEdit || onDelete || onViewResult || ActionsComponent) && (
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center gap-2">
                       {ActionsComponent ? (
@@ -136,6 +137,7 @@ export default function DataTable({
                             item={item}
                             user={item}
                             onViewDetail={onViewDetail}
+                            onViewResult={onViewResult}
                             onRestore={onRestore}
                             onEdit={onEdit}
                           />
@@ -150,6 +152,14 @@ export default function DataTable({
                         </>
                       ) : (
                         <>
+                          {onViewResult && (
+                            <button
+                              onClick={() => onViewResult(item)}
+                              className="text-blue-600 hover:text-blue-900"
+                            >
+                              View Result
+                            </button>
+                          )}
                           {onEdit && (
                             <button
                               onClick={() => onEdit(item)}

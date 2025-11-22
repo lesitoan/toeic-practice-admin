@@ -14,6 +14,7 @@ export const API_ENDPOINTS = {
     BASE: `${API_BASE_URL}api/v1/users`,
     DETAIL: `${API_BASE_URL}/api/v1/users/information/id`,
     DELETE: `${API_BASE_URL}api/v1/users/account`,
+    TEST_SESSION: (userId) => `${API_BASE_URL}api/v1/users/${userId}/test_session`,
   },
   VOCABULARY: `${API_BASE_URL}api/v1/vocabulary`,
   TESTS: {
