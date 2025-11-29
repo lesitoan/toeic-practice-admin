@@ -56,24 +56,22 @@ const AnalyticsMetricsCards = ({ scoreData = [], testCompletionData = [] }) => {
   return (
     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
       {metrics.map((metric, index) => (
-        <div key={index} className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className={`h-6 w-6 rounded-full ${metric.bgColor} flex items-center justify-center`}>
-                  <metric.icon className={`h-4 w-4 ${metric.iconColor}`} />
-                </div>
+        <div key={index} className="card-block">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <div className="h-6 w-6 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(91, 86, 227, 0.1)' }}>
+                <metric.icon className="h-4 w-4" style={{ color: 'var(--color-primary)' }} />
               </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    {metric.label}
-                  </dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {metric.value}
-                  </dd>
-                </dl>
-              </div>
+            </div>
+            <div className="ml-5 w-0 flex-1">
+              <dl>
+                <dt className="text-sm font-medium truncate" style={{ color: 'var(--color-text-secondary)' }}>
+                  {metric.label}
+                </dt>
+                <dd className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>
+                  {metric.value}
+                </dd>
+              </dl>
             </div>
           </div>
         </div>

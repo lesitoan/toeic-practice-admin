@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import UserResultsTable from '@/components/results/UserResultsTable';
 import TestSessionModal from '@/components/results/TestSessionModal';
+import TestSessionDetailModal from '@/components/results/TestSessionDetailModal';
 import usersService from '@/services/users.service';
 import { toast } from 'react-toastify';
 
@@ -14,6 +15,9 @@ export default function Results() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [testSessions, setTestSessions] = useState([]);
   const [loadingSessions, setLoadingSessions] = useState(false);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [testDetail, setTestDetail] = useState(null);
+  const [loadingDetail, setLoadingDetail] = useState(false);
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 20,
@@ -121,14 +125,39 @@ export default function Results() {
     fetchUsers(1, newLimit);
   };
 
+  // Handle view detail button click
+  const handleViewDetail = async (session) => {
+    if (!selectedUser) return;
+    
+    try {
+      setIsDetailModalOpen(true);
+      setLoadingDetail(true);
+      setTestDetail(null);
+
+      // Fetch test session detail
+      const detail = await usersService.getUserTestSessionDetail(
+        selectedUser.id,
+        session.test_session_id
+      );
+      
+      setTestDetail(detail);
+    } catch (error) {
+      console.error('Error fetching test session detail:', error);
+      toast.error('Failed to load test detail. Please try again.');
+      setIsDetailModalOpen(false);
+    } finally {
+      setLoadingDetail(false);
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
         <div className="sm:flex sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Test Results</h1>
-            <p className="mt-2 text-sm text-gray-700">
+            <h1 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>Test Results</h1>
+            <p className="mt-2 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
               View and analyze student performance across all TOEIC practice tests
             </p>
           </div>
@@ -155,6 +184,18 @@ export default function Results() {
           testSessions={testSessions}
           user={selectedUser}
           loading={loadingSessions}
+          onViewDetail={handleViewDetail}
+        />
+
+        {/* Test Session Detail Modal */}
+        <TestSessionDetailModal
+          isOpen={isDetailModalOpen}
+          onClose={() => {
+            setIsDetailModalOpen(false);
+            setTestDetail(null);
+          }}
+          testDetail={testDetail}
+          loading={loadingDetail}
         />
       </div>
     </DashboardLayout>

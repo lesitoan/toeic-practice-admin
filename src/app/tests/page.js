@@ -134,8 +134,8 @@ export default function Tests() {
         {/* Header */}
         <div className="sm:flex sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Tests</h1>
-            <p className="mt-2 text-sm text-gray-700">
+            <h1 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>Tests</h1>
+            <p className="mt-2 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
               Create and manage TOEIC practice tests for your students
             </p>
           </div>
@@ -143,7 +143,10 @@ export default function Tests() {
             <button
               type="button"
               onClick={() => setIsAddModalOpen(true)}
-              className="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto"
+              className="inline-flex items-center justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto"
+              style={{ backgroundColor: 'var(--color-primary)' }}
+              onMouseEnter={(e) => e.currentTarget.style.opacity = '0.5'}
+              onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
             >
               <PlusIcon className="-ml-1 mr-2 h-5 w-5" />
               Create Test
@@ -155,7 +158,7 @@ export default function Tests() {
         <TestsStatsCards tests={tests} />
 
         {/* Tests Table */}
-        <div className="bg-white shadow rounded-lg">
+        <div className="card-block">
           <TestsFilters
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}

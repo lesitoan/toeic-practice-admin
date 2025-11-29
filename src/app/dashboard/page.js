@@ -70,8 +70,8 @@ export default function Dashboard() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>Dashboard</h1>
+          <p className="mt-1 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
             Welcome back! Here's what's happening with your TOEIC Practice platform today.
           </p>
         </div>
@@ -86,151 +86,130 @@ export default function Dashboard() {
         {/* Charts and Activity */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* Score Distribution Chart */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="px-4 py-5 sm:p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Score Distribution</h3>
-              <div className="space-y-3">
-                {[
-                  { range: '90-100%', count: 234, percentage: 15, color: 'bg-green-500' },
-                  { range: '80-89%', count: 456, percentage: 30, color: 'bg-blue-500' },
-                  { range: '70-79%', count: 567, percentage: 37, color: 'bg-yellow-500' },
-                  { range: '60-69%', count: 234, percentage: 15, color: 'bg-orange-500' },
-                  { range: 'Below 60%', count: 45, percentage: 3, color: 'bg-red-500' },
-                ].map((item) => (
-                  <div key={item.range} className="flex items-center">
-                    <div className="w-20 text-sm text-gray-600">{item.range}</div>
-                    <div className="flex-1 mx-4">
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div
-                          className={`h-2 rounded-full ${item.color}`}
-                          style={{ width: `${item.percentage}%` }}
-                        />
-                      </div>
+          <div className="card-block">
+            <h3 className="card-title">Score Distribution</h3>
+            <div className="space-y-3">
+              {[
+                { range: '90-100%', count: 234, percentage: 15, scoreClass: 'score-90-100' },
+                { range: '80-89%', count: 456, percentage: 30, scoreClass: 'score-80-89' },
+                { range: '70-79%', count: 567, percentage: 37, scoreClass: 'score-70-79' },
+                { range: '60-69%', count: 234, percentage: 15, scoreClass: 'score-60-69' },
+                { range: 'Below 60%', count: 45, percentage: 3, scoreClass: 'score-below-60' },
+              ].map((item) => (
+                <div key={item.range} className="flex items-center">
+                  <div className="w-20 text-sm" style={{ color: 'var(--color-text-secondary)' }}>{item.range}</div>
+                  <div className="flex-1 mx-4">
+                    <div className="progress-bar">
+                      <div
+                        className={`progress-bar-fill ${item.scoreClass}`}
+                        style={{ width: `${item.percentage}%`, height: '100%' }}
+                      />
                     </div>
-                    <div className="w-16 text-sm text-gray-600 text-right">{item.count}</div>
                   </div>
-                ))}
-              </div>
+                  <div className="w-16 text-sm text-right" style={{ color: 'var(--color-text-secondary)' }}>{item.count}</div>
+                </div>
+              ))}
             </div>
           </div>
 
           {/* Recent Activity */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="px-4 py-5 sm:p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Recent Activity</h3>
-              <div className="flow-root">
-                <ul className="-mb-8">
-                  {recentActivity.map((activity, activityIdx) => (
-                    <li key={activity.id}>
-                      <div className="relative pb-8">
-                        {activityIdx !== recentActivity.length - 1 ? (
-                          <span
-                            className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200"
-                            aria-hidden="true"
-                          />
-                        ) : null}
-                        <div className="relative flex space-x-3">
+          <div className="card-block">
+            <h3 className="card-title">Recent Activity</h3>
+            <div className="flow-root">
+              <ul className="-mb-8">
+                {recentActivity.map((activity, activityIdx) => (
+                  <li key={activity.id}>
+                    <div className="relative pb-8">
+                      {activityIdx !== recentActivity.length - 1 ? (
+                        <span
+                          className="absolute top-4 left-4 -ml-px h-full w-0.5"
+                          style={{ backgroundColor: 'var(--color-border)' }}
+                          aria-hidden="true"
+                        />
+                      ) : null}
+                      <div className="relative flex space-x-3">
+                        <div>
+                          <span className="h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white" style={{ backgroundColor: 'rgba(91, 86, 227, 0.1)' }}>
+                            <span className="text-sm font-medium" style={{ color: 'var(--color-primary)' }}>{activity.avatar}</span>
+                          </span>
+                        </div>
+                        <div className="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
                           <div>
-                            <span className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center ring-8 ring-white">
-                              <span className="text-sm font-medium text-blue-700">{activity.avatar}</span>
-                            </span>
+                            <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                              <span className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{activity.user}</span>{' '}
+                              {activity.action}
+                              {activity.score && (
+                                <span className="font-medium" style={{ color: 'var(--color-success)' }}> with {activity.score}</span>
+                              )}
+                            </p>
                           </div>
-                          <div className="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
-                            <div>
-                              <p className="text-sm text-gray-500">
-                                <span className="font-medium text-gray-900">{activity.user}</span>{' '}
-                                {activity.action}
-                                {activity.score && (
-                                  <span className="font-medium text-green-600"> with {activity.score}</span>
-                                )}
-                              </p>
-                            </div>
-                            <div className="text-right text-sm whitespace-nowrap text-gray-500">
-                              <time>{activity.time}</time>
-                            </div>
+                          <div className="text-right text-sm whitespace-nowrap" style={{ color: 'var(--color-text-secondary)' }}>
+                            <time>{activity.time}</time>
                           </div>
                         </div>
                       </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-white shadow rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <button 
-                onClick={() => setIsAddModalOpen(true)}
-                className="relative group bg-white p-6 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:shadow-md transition-all"
-              >
-                <div>
-                  <span className="rounded-lg inline-flex p-3 bg-blue-50 text-blue-700 ring-4 ring-white">
-                    <UsersIcon className="h-6 w-6" />
-                  </span>
-                </div>
-                <div className="mt-4">
-                  <h3 className="text-lg font-medium text-gray-900 group-hover:text-blue-600">
-                    Add New User
-                  </h3>
-                  <p className="mt-2 text-sm text-gray-500">
-                    Create a new student account
-                  </p>
-                </div>
-              </button>
+        <div className="card-block">
+          <h3 className="card-title">Quick Actions</h3>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <button 
+              onClick={() => setIsAddModalOpen(true)}
+              className="quick-action-item"
+            >
+              <div className="action-icon">
+                <UsersIcon className="h-7 w-7 mx-auto" style={{ color: 'var(--color-primary)' }} />
+              </div>
+              <h3 className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>
+                Add New User
+              </h3>
+              <p className="action-description mt-2">
+                Create a new student account
+              </p>
+            </button>
 
-              <button className="relative group bg-white p-6 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:shadow-md transition-all">
-                <div>
-                  <span className="rounded-lg inline-flex p-3 bg-green-50 text-green-700 ring-4 ring-white">
-                    <DocumentTextIcon className="h-6 w-6" />
-                  </span>
-                </div>
-                <div className="mt-4">
-                  <h3 className="text-lg font-medium text-gray-900 group-hover:text-green-600">
-                    Create Test
-                  </h3>
-                  <p className="mt-2 text-sm text-gray-500">
-                    Build a new practice test
-                  </p>
-                </div>
-              </button>
+            <button className="quick-action-item">
+              <div className="action-icon">
+                <DocumentTextIcon className="h-7 w-7 mx-auto" style={{ color: 'var(--color-primary)' }} />
+              </div>
+              <h3 className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>
+                Create Test
+              </h3>
+              <p className="action-description mt-2">
+                Build a new practice test
+              </p>
+            </button>
 
-              <button className="relative group bg-white p-6 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:shadow-md transition-all">
-                <div>
-                  <span className="rounded-lg inline-flex p-3 bg-purple-50 text-purple-700 ring-4 ring-white">
-                    <ChartBarIcon className="h-6 w-6" />
-                  </span>
-                </div>
-                <div className="mt-4">
-                  <h3 className="text-lg font-medium text-gray-900 group-hover:text-purple-600">
-                    View Reports
-                  </h3>
-                  <p className="mt-2 text-sm text-gray-500">
-                    Analyze performance data
-                  </p>
-                </div>
-              </button>
+            <button className="quick-action-item">
+              <div className="action-icon">
+                <ChartBarIcon className="h-7 w-7 mx-auto" style={{ color: 'var(--color-primary)' }} />
+              </div>
+              <h3 className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>
+                View Reports
+              </h3>
+              <p className="action-description mt-2">
+                Analyze performance data
+              </p>
+            </button>
 
-              <button className="relative group bg-white p-6 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:shadow-md transition-all">
-                <div>
-                  <span className="rounded-lg inline-flex p-3 bg-orange-50 text-orange-700 ring-4 ring-white">
-                    <ClockIcon className="h-6 w-6" />
-                  </span>
-                </div>
-                <div className="mt-4">
-                  <h3 className="text-lg font-medium text-gray-900 group-hover:text-orange-600">
-                    Monitor Activity
-                  </h3>
-                  <p className="mt-2 text-sm text-gray-500">
-                    Track real-time usage
-                  </p>
-                </div>
-              </button>
-            </div>
+            <button className="quick-action-item">
+              <div className="action-icon">
+                <ClockIcon className="h-7 w-7 mx-auto" style={{ color: 'var(--color-primary)' }} />
+              </div>
+              <h3 className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>
+                Monitor Activity
+              </h3>
+              <p className="action-description mt-2">
+                Track real-time usage
+              </p>
+            </button>
           </div>
         </div>
 

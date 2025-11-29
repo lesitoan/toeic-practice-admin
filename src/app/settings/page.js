@@ -47,14 +47,14 @@ export default function Settings() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>Settings</h1>
+          <p className="mt-1 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
             Manage your account settings and preferences
           </p>
         </div>
 
         {/* Settings Container */}
-        <div className="bg-white shadow rounded-lg">
+        <div className="card-block">
           <SettingsTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
           <div className="p-6">

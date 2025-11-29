@@ -164,6 +164,19 @@ class UsersService {
       throw error;
     }
   }
+
+  // Get user test session detail
+  // GET /api/v1/users/{user_id}/{test_session_id}
+  async getUserTestSessionDetail(userId, testSessionId) {
+    try {
+      const url = API_ENDPOINTS.USERS.TEST_SESSION_DETAIL(userId, testSessionId);
+      const response = await apiClient.get(url);
+      return response.data;
+    } catch (error) {
+      console.error('Get user test session detail error:', error);
+      throw error;
+    }
+  }
 }
 
 export default new UsersService();

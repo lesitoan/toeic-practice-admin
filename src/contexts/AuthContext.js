@@ -29,6 +29,15 @@ export const AuthProvider = ({ children }) => {
         const currentUser = authService.getCurrentUser();
         const isAuthenticated = authService.isAuthenticated();
         
+        // Check if user has Student role (role_id = 3) - block from admin panel
+        if (currentUser && (currentUser.role_id === 3 || currentUser.roleID === 3)) {
+          // Clear auth data and logout Student user
+          authService.clearAuthData();
+          setUser(null);
+          console.warn('Student user detected, logged out from admin panel');
+          return;
+        }
+        
         if (isAuthenticated && currentUser) {
           setUser(currentUser);
         } else {
@@ -54,6 +63,12 @@ export const AuthProvider = ({ children }) => {
       let user = response.user;
       if (!user) {
         user = authService.getCurrentUser();
+      }
+      
+      // Double check: Block Student role (in case it passed through)
+      if (user && (user.role_id === 3 || user.roleID === 3)) {
+        await authService.logout();
+        throw new Error('Bạn không có quyền truy cập vào trang quản trị. Chỉ Admin và Staff mới có thể đăng nhập.');
       }
       
       setUser(user);
@@ -94,6 +109,15 @@ export const AuthProvider = ({ children }) => {
   const refreshUser = async () => {
     try {
       const user = await authService.refreshUserData();
+      
+      // Check if user has Student role - block from admin panel
+      if (user && (user.role_id === 3 || user.roleID === 3)) {
+        await authService.logout();
+        setUser(null);
+        router.push('/login');
+        throw new Error('Bạn không có quyền truy cập vào trang quản trị.');
+      }
+      
       setUser(user);
       return user;
     } catch (error) {

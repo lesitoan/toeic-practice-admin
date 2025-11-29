@@ -26,8 +26,8 @@ export default function Analytics() {
         {/* Header */}
         <div className="sm:flex sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Analytics</h1>
-            <p className="mt-2 text-sm text-gray-700">
+            <h1 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>Analytics</h1>
+            <p className="mt-2 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
               Comprehensive insights into student performance and platform usage
             </p>
           </div>
@@ -35,7 +35,20 @@ export default function Analytics() {
             <select
               value={selectedPeriod}
               onChange={(e) => setSelectedPeriod(e.target.value)}
-              className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+              className="border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-offset-2"
+              style={{ 
+                borderColor: 'var(--color-border)',
+                color: 'var(--color-text-primary)',
+                backgroundColor: 'var(--color-bg-card)'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = 'var(--color-primary)';
+                e.target.style.boxShadow = '0 0 0 3px rgba(91, 86, 227, 0.1)';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = 'var(--color-border)';
+                e.target.style.boxShadow = 'none';
+              }}
             >
               {PERIOD_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
