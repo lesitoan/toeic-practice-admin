@@ -119,6 +119,7 @@ export default function CreateTestModal({ isOpen, onClose, onSave }) {
           description: testDescription,
           status: testStatus,
         }}
+        existingPartsData={partsData}
       />
     );
   }

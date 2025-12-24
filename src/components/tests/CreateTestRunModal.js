@@ -16,7 +16,7 @@ export default function CreateTestRunModal({ isOpen, onClose, test, onSuccess })
     grace_sec: 0,
     scope: 1, // 1=PUBLIC, 2=CLASS
     class_id: '',
-    has_pause: true,
+    has_pause: false, // Default is false, user can enable it via checkbox
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -100,7 +100,7 @@ export default function CreateTestRunModal({ isOpen, onClose, test, onSuccess })
       grace_sec: 0,
       scope: 1,
       class_id: '',
-      has_pause: true,
+      has_pause: false,
     });
     onClose();
   };
