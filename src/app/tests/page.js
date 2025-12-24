@@ -7,6 +7,8 @@ import TestsFilters from '@/components/tests/TestsFilters';
 import TestsTable from '@/components/tests/TestsTable';
 import CreateTestModal from '@/components/tests/CreateTestModal';
 import CreateTestRunModal from '@/components/tests/CreateTestRunModal';
+import ViewTestModal from '@/components/tests/ViewTestModal';
+import UpdateTestModal from '@/components/tests/UpdateTestModal';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
 import testsService from '@/services/tests.service';
@@ -15,7 +17,13 @@ export default function Tests() {
   const [tests, setTests] = useState([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isTestRunModalOpen, setIsTestRunModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [selectedTest, setSelectedTest] = useState(null);
+  const [viewingTest, setViewingTest] = useState(null);
+  const [viewingTestDetail, setViewingTestDetail] = useState(null);
+  const [isLoadingTestDetail, setIsLoadingTestDetail] = useState(false);
+  const [editingTest, setEditingTest] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -78,17 +86,59 @@ export default function Tests() {
   });
 
   const handleEdit = (test) => {
-    console.log('Edit test:', test);
+    setEditingTest(test);
+    setIsUpdateModalOpen(true);
   };
 
   const handleDelete = (test) => {
-    if (confirm(`Are you sure you want to delete "${test.title}"?`)) {
+    if (confirm(`Are you sure you want to delete "${test.title || test.name}"?`)) {
       setTests(tests.filter(t => t.id !== test.id));
+      toast.success('Test deleted successfully');
     }
   };
 
-  const handleView = (test) => {
-    console.log('View test:', test);
+  const handleView = async (test) => {
+    setViewingTest(test);
+    setIsViewModalOpen(true);
+    setIsLoadingTestDetail(true);
+    setViewingTestDetail(null);
+
+    try {
+      // Get template_id from test (it's the id field)
+      const templateId = test.id;
+      if (!templateId) {
+        toast.error('Test ID not found');
+        setIsLoadingTestDetail(false);
+        return;
+      }
+
+      // Fetch test details from API
+      const testDetail = await testsService.getTestById(templateId, {
+        page: 1,
+        limit: 20,
+        sort_by: 'id',
+        sort_type: -1,
+        name: 'default',
+      });
+
+      setViewingTestDetail(testDetail);
+    } catch (error) {
+      console.error('Error fetching test details:', error);
+      const message = error?.response?.data?.message || error?.message || 'Failed to load test details.';
+      toast.error(message);
+    } finally {
+      setIsLoadingTestDetail(false);
+    }
+  };
+
+  const handleTestUpdated = (updatedTest) => {
+    // Update the test in the list
+    setTests(tests.map(t => t.id === updatedTest.id ? updatedTest : t));
+    setIsUpdateModalOpen(false);
+    setEditingTest(null);
+    toast.success('Test updated successfully');
+    // Optionally refresh the tests list
+    fetchTests();
   };
 
   const handleRun = (test) => {
@@ -207,6 +257,30 @@ export default function Tests() {
         }}
         test={selectedTest}
         onSuccess={handleTestRunSuccess}
+      />
+
+      {/* View Test Modal */}
+      <ViewTestModal
+        isOpen={isViewModalOpen}
+        onClose={() => {
+          setIsViewModalOpen(false);
+          setViewingTest(null);
+          setViewingTestDetail(null);
+        }}
+        test={viewingTest}
+        testDetail={viewingTestDetail}
+        loading={isLoadingTestDetail}
+      />
+
+      {/* Update Test Modal */}
+      <UpdateTestModal
+        isOpen={isUpdateModalOpen}
+        onClose={() => {
+          setIsUpdateModalOpen(false);
+          setEditingTest(null);
+        }}
+        test={editingTest}
+        onSave={handleTestUpdated}
       />
     </DashboardLayout>
   );

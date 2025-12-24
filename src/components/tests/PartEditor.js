@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { XMarkIcon, PlusIcon, TrashIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
 import testsService from '@/services/tests.service';
+import AIAssistant from './AIAssistant';
 
 const DEFAULT_DIFFICULTY = 'EASY';
 const PASSAGE_TYPES = [
@@ -378,22 +379,38 @@ export default function PartEditor({ part, initialData, onSave, onClose, testTem
         } else if (passage.type === 'IMAGE') {
           // Upload image file if exists
           if (passage.imageFile) {
-            passagePublicId = await uploadFileToCloudinary(passage.imageFile, signature);
+            const uploadedUrl = await uploadFileToCloudinary(passage.imageFile, signature);
+            passageContent = uploadedUrl; // Điền link vào content
+            passagePublicId = uploadedUrl; // Cũng lưu vào public_id
             if (passage.imagePreview && passage.imagePreview.startsWith('blob:')) {
               URL.revokeObjectURL(passage.imagePreview);
             }
           } else if (passage.public_id) {
+            // Nếu đã có public_id (file đã upload trước đó), dùng nó cho cả content
+            passageContent = passage.public_id;
             passagePublicId = passage.public_id;
+          } else if (passage.content) {
+            // Nếu đã có content (link), dùng nó
+            passageContent = passage.content;
+            passagePublicId = passage.content;
           }
         } else if (passage.type === 'AUDIO') {
           // Upload audio file if exists
           if (passage.audioFile) {
-            passagePublicId = await uploadFileToCloudinary(passage.audioFile, signature);
+            const uploadedUrl = await uploadFileToCloudinary(passage.audioFile, signature);
+            passageContent = uploadedUrl; // Điền link vào content
+            passagePublicId = uploadedUrl; // Cũng lưu vào public_id
             if (passage.audioPreview && passage.audioPreview.startsWith('blob:')) {
               URL.revokeObjectURL(passage.audioPreview);
             }
           } else if (passage.public_id) {
+            // Nếu đã có public_id (file đã upload trước đó), dùng nó cho cả content
+            passageContent = passage.public_id;
             passagePublicId = passage.public_id;
+          } else if (passage.content) {
+            // Nếu đã có content (link), dùng nó
+            passageContent = passage.content;
+            passagePublicId = passage.content;
           }
         }
 
@@ -777,7 +794,7 @@ export default function PartEditor({ part, initialData, onSave, onClose, testTem
       <div className="flex min-h-screen items-center justify-center p-4">
         <div className="fixed inset-0 bg-gray-900/50" onClick={onClose} />
         
-        <div className="relative w-full max-w-5xl bg-white rounded-lg shadow-xl max-h-[90vh] flex flex-col">
+        <div className="relative w-full max-w-7xl bg-white rounded-lg shadow-xl max-h-[90vh] flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
             <div>
@@ -792,8 +809,10 @@ export default function PartEditor({ part, initialData, onSave, onClose, testTem
             </button>
           </div>
 
-          {/* Content - Scrollable */}
-          <div className="px-6 py-4 overflow-y-auto flex-1">
+          {/* Content - Two Column Layout */}
+          <div className="flex flex-1 overflow-hidden">
+            {/* Main Content - Scrollable */}
+            <div className="flex-1 px-6 py-4 overflow-y-auto">
             {/* Add Passage Button */}
             <div className="mb-4">
               <button
@@ -815,6 +834,14 @@ export default function PartEditor({ part, initialData, onSave, onClose, testTem
                 {passages.map((passage, index) => renderPassageEditor(passage, index))}
               </div>
             )}
+            </div>
+
+            {/* AI Assistant Sidebar */}
+            <div className="w-96 border-l border-gray-200 bg-gray-50 overflow-y-auto">
+              <div className="p-4">
+                <AIAssistant partId={part.id} />
+              </div>
+            </div>
           </div>
 
           {/* Footer */}

@@ -8,15 +8,15 @@ import testsService from '@/services/tests.service';
 export default function CreateTestRunModal({ isOpen, onClose, test, onSuccess }) {
   const [formData, setFormData] = useState({
     title: '',
-    mode: 1,
+    mode: 1, // 1=TEMPLATE, 2=RULES
     start_at: '',
     end_at: '',
     duration_sec: 0,
     attempt_limit: 1,
     grace_sec: 0,
-    scope: 1,
+    scope: 1, // 1=PUBLIC, 2=CLASS
     class_id: '',
-    isPublic: false,
+    has_pause: true,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -36,28 +36,39 @@ export default function CreateTestRunModal({ isOpen, onClose, test, onSuccess })
       return;
     }
 
-    if (!formData.isPublic && !formData.class_id) {
-      toast.error('Please enter a class ID or select Public');
+    // If scope is CLASS (2), class_id is required
+    if (formData.scope === 2 && !formData.class_id) {
+      toast.error('Please enter a class ID for CLASS scope');
       return;
     }
 
     setIsSubmitting(true);
 
     try {
+      // Convert datetime-local to ISO 8601 format
+      const formatDateTime = (dateTimeString) => {
+        if (!dateTimeString) return null;
+        // datetime-local format: "YYYY-MM-DDTHH:mm"
+        // Convert to ISO 8601: "YYYY-MM-DDTHH:mm:ss.sssZ"
+        const date = new Date(dateTimeString);
+        return date.toISOString();
+      };
+
       const payload = {
         title: formData.title.trim(),
         test_template_id: test.id,
         mode: formData.mode,
-        start_at: formData.start_at || null,
-        end_at: formData.end_at || null,
+        start_at: formatDateTime(formData.start_at),
+        end_at: formatDateTime(formData.end_at),
         duration_sec: formData.duration_sec,
         attempt_limit: formData.attempt_limit,
         grace_sec: formData.grace_sec,
         scope: formData.scope,
+        has_pause: formData.has_pause,
       };
 
-      // Only include class_id if not public
-      if (!formData.isPublic && formData.class_id) {
+      // Only include class_id if scope is CLASS (2)
+      if (formData.scope === 2 && formData.class_id) {
         payload.class_id = parseInt(formData.class_id);
       }
 
@@ -89,7 +100,7 @@ export default function CreateTestRunModal({ isOpen, onClose, test, onSuccess })
       grace_sec: 0,
       scope: 1,
       class_id: '',
-      isPublic: false,
+      has_pause: true,
     });
     onClose();
   };
@@ -148,9 +159,8 @@ export default function CreateTestRunModal({ isOpen, onClose, test, onSuccess })
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 >
-                  <option value={1}>Mode 1</option>
-                  <option value={2}>Mode 2</option>
-                  <option value={3}>Mode 3</option>
+                  <option value={1}>TEMPLATE</option>
+                  <option value={2}>RULES</option>
                 </select>
               </div>
 
@@ -166,41 +176,47 @@ export default function CreateTestRunModal({ isOpen, onClose, test, onSuccess })
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 >
-                  <option value={1}>Scope 1</option>
-                  <option value={2}>Scope 2</option>
-                  <option value={3}>Scope 3</option>
+                  <option value={1}>PUBLIC</option>
+                  <option value={2}>CLASS</option>
                 </select>
+                <p className="mt-1 text-xs text-gray-500">
+                  {formData.scope === 1 
+                    ? 'Public test run - available to all users' 
+                    : 'Class test run - requires class ID'}
+                </p>
               </div>
 
-              {/* Public/Class ID */}
+              {/* Class ID - Only show when scope is CLASS (2) */}
+              {formData.scope === 2 && (
+                <div>
+                  <label htmlFor="class_id" className="block text-sm font-medium text-gray-700 mb-1">
+                    Class ID <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    id="class_id"
+                    name="class_id"
+                    value={formData.class_id}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Enter class ID"
+                    required
+                  />
+                </div>
+              )}
+
+              {/* Has Pause */}
               <div>
-                <label className="flex items-center mb-2">
+                <label className="flex items-center">
                   <input
                     type="checkbox"
-                    name="isPublic"
-                    checked={formData.isPublic}
+                    name="has_pause"
+                    checked={formData.has_pause}
                     onChange={handleChange}
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
-                  <span className="ml-2 text-sm font-medium text-gray-700">Public</span>
+                  <span className="ml-2 text-sm font-medium text-gray-700">Allow Pause</span>
                 </label>
-                {!formData.isPublic && (
-                  <div>
-                    <label htmlFor="class_id" className="block text-sm font-medium text-gray-700 mb-1">
-                      Class ID <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      id="class_id"
-                      name="class_id"
-                      value={formData.class_id}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Enter class ID"
-                      required={!formData.isPublic}
-                    />
-                  </div>
-                )}
               </div>
 
               {/* Start At */}

@@ -84,6 +84,50 @@ class TestsService {
       throw error;
     }
   }
+
+  async getAIAdvice(topic, part, description) {
+    try {
+      const response = await apiClient.post(API_ENDPOINTS.CHATBOT.ADVICE_QUESTIONS, {
+        topic,
+        part,
+        description,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Get AI advice error:', error);
+      throw error;
+    }
+  }
+
+  async getTestById(templateId, params = {}) {
+    if (!templateId) {
+      throw new Error('Test template ID is required');
+    }
+
+    try {
+      const {
+        page = 1,
+        limit = 20,
+        sort_by = 'id',
+        sort_type = -1,
+        name = 'default',
+      } = params;
+
+      const response = await apiClient.get(API_ENDPOINTS.TESTS.GET_BY_ID(templateId), {
+        params: {
+          page,
+          limit,
+          sort_by,
+          sort_type,
+          name,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Get test by ID error:', error);
+      throw error;
+    }
+  }
 }
 
 export default new TestsService();

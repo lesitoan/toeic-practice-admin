@@ -10,7 +10,8 @@ import {
   DocumentTextIcon, 
   ChartBarIcon, 
   XMarkIcon,
-  BookOpenIcon
+  BookOpenIcon,
+  AcademicCapIcon
 } from '@heroicons/react/24/outline';
 import authService from '@/services/auth.service';
 
@@ -19,6 +20,7 @@ const navigation = [
   { name: 'Users', href: '/users', icon: UsersIcon },
   { name: 'Tests', href: '/tests', icon: DocumentTextIcon },
   { name: 'Vocabulary', href: '/vocabulary', icon: BookOpenIcon },
+  { name: 'Class', href: '/class', icon: AcademicCapIcon },
   { name: 'Results', href: '/results', icon: ChartBarIcon },
   { name: 'Analytics', href: '/analytics', icon: ChartBarIcon },
 ];
