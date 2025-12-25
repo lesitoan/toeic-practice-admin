@@ -44,20 +44,23 @@ export default function Tests() {
       });
       
       // Map API response to match component structure
-      const mappedTests = (response.items || []).map(test => ({
-        id: test.id,
-        title: test.name,
-        name: test.name,
-        description: test.description || '',
-        status: test.status,
-        category: 'TOEIC Test', // Default category
-        difficulty: 'Intermediate', // Default difficulty
-        duration: '120 min', // Default duration
-        questions: 0, // Will be calculated if needed
-        assignedUsers: 0, // Will be calculated if needed
-        averageScore: 'N/A', // Will be calculated if needed
-        lastModified: 'N/A', // Will be calculated if needed
-      }));
+      // Filter out tests with status "deleted"
+      const mappedTests = (response.items || [])
+        .filter(test => test.status !== 'deleted')
+        .map(test => ({
+          id: test.id,
+          title: test.name,
+          name: test.name,
+          description: test.description || '',
+          status: test.status,
+          category: 'TOEIC Test', // Default category
+          difficulty: 'Intermediate', // Default difficulty
+          duration: '120 min', // Default duration
+          questions: 0, // Will be calculated if needed
+          assignedUsers: 0, // Will be calculated if needed
+          averageScore: 'N/A', // Will be calculated if needed
+          lastModified: 'N/A', // Will be calculated if needed
+        }));
       
       setTests(mappedTests);
     } catch (error) {
@@ -73,7 +76,13 @@ export default function Tests() {
   }, []);
 
   // Filter tests based on search and filters
+  // Also exclude tests with status "deleted" as a safety measure
   const filteredTests = tests.filter(test => {
+    // Always exclude deleted tests
+    if (test.status === 'deleted') {
+      return false;
+    }
+    
     const matchesSearch = !searchTerm || 
       test.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       test.description?.toLowerCase().includes(searchTerm.toLowerCase());

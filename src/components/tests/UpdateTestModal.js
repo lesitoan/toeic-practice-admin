@@ -70,21 +70,45 @@ export default function UpdateTestModal({ isOpen, onClose, test, onSave }) {
         if (partData.items && Array.isArray(partData.items)) {
           partData.items.forEach((item) => {
             if (item.kind === 'passage' && item.passage) {
+              const passageType = item.passage.type || 'TEXT';
+              const passageContent = item.passage.content || item.passage.content_preview || '';
+              const passagePublicId = item.passage.public_id || passageContent || '';
+              
+              // Determine content and preview based on type
+              let content = '';
+              let imagePreview = '';
+              let audioPreview = '';
+              let publicId = passagePublicId;
+              
+              if (passageType === 'IMAGE') {
+                // For IMAGE, content is the link URL (from API response)
+                // API returns content as the image URL
+                content = passageContent || passagePublicId || '';
+                publicId = passagePublicId || passageContent || '';
+                imagePreview = passageContent || passagePublicId || ''; // Show image preview
+              } else if (passageType === 'AUDIO') {
+                // For AUDIO, content is the link URL (from API response)
+                // API returns content as the audio URL
+                content = passageContent || passagePublicId || '';
+                publicId = passagePublicId || passageContent || '';
+                audioPreview = passageContent || passagePublicId || ''; // Show audio preview
+              } else {
+                // For TEXT, content is the text itself
+                content = passageContent || '';
+                publicId = '';
+              }
+
               const passage = {
                 id: Date.now() + Math.random(),
                 ref: item.passage.ref || generatePassageRef(),
-                type: item.passage.type || 'TEXT',
-                content: item.passage.content || item.passage.content_preview || '',
-                public_id: item.passage.public_id || item.passage.content || '',
+                type: passageType,
+                content: content,
+                public_id: publicId,
                 instructions: item.passage.instructions || '',
                 imageFile: null,
                 audioFile: null,
-                imagePreview: item.passage.type === 'IMAGE' && item.passage.content 
-                  ? item.passage.content 
-                  : '',
-                audioPreview: item.passage.type === 'AUDIO' && item.passage.content 
-                  ? item.passage.content 
-                  : '',
+                imagePreview: imagePreview,
+                audioPreview: audioPreview,
                 questions: [],
               };
 

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
-import { toast } from 'react-toastify';
+import { toast } from '@/utils/toast';
 import classesService from '@/services/classes.service';
 import CreateClassModal from '@/components/classes/CreateClassModal';
 import UpdateClassModal from '@/components/classes/UpdateClassModal';
@@ -16,42 +16,28 @@ export default function ClassPage() {
   const [selectedClass, setSelectedClass] = useState(null);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [editingClass, setEditingClass] = useState(null);
-  const [pagination, setPagination] = useState({
-    page: 1,
-    limit: 20,
-    total: 0,
-    has_more: false,
-  });
 
   // Fetch classes from API
-  const fetchClasses = async (page = pagination.page) => {
+  const fetchClasses = async () => {
     try {
       setLoading(true);
-      const response = await classesService.getAllClasses(page, pagination.limit);
+      const response = await classesService.getAllClasses();
+      // Handle different response formats
+      let classesList = Array.isArray(response) ? response : (response.items || response.data || []);
       
-      // Response format: { total, items, page, limit, has_more, next_cursor, order }
-      const classesList = response.items || [];
+      // Normalize class IDs - ensure all classes have 'id' field
+      classesList = classesList.map((cls) => ({
+        ...cls,
+        id: cls.id || cls.class_id || cls.ID, // Use id if exists, otherwise class_id or ID
+      }));
       
       // Log to debug class structure
       if (classesList.length > 0) {
         console.log('Sample class item structure:', classesList[0]);
-        console.log('Full response:', response);
       }
       
-      // Update pagination state
-      setPagination((prev) => ({
-        ...prev,
-        page: response.page || page,
-        total: response.total || 0,
-        has_more: response.has_more || false,
-      }));
-      
-      // Note: Response items may not have 'id' field, only 'name' and 'student_ids'
-      // We'll need to handle this when selecting a class
       setClasses(classesList);
     } catch (error) {
-      console.error('Error fetching classes:', error);
-      toast.error('Failed to load classes. Please try again.');
       setClasses([]);
     } finally {
       setLoading(false);
@@ -74,16 +60,9 @@ export default function ClassPage() {
   const handleSelectClass = async (classItem) => {
     try {
       // Get class ID - check multiple possible field names
-      // Note: Response from getAllClasses may not have 'id', only 'name'
-      // We might need to use name or find another way to get the ID
       const classId = classItem.id || classItem.class_id || classItem.ID;
       
       if (!classId) {
-        console.error('Class ID not found in classItem:', classItem);
-        console.log('Available fields:', Object.keys(classItem));
-        // If no ID, we might need to search by name or use index
-        // For now, show error and log the structure
-        toast.error('Class ID not available. Please check the API response structure.');
         return;
       }
 
@@ -97,9 +76,7 @@ export default function ClassPage() {
       }
       setSelectedClass(classDetails);
     } catch (error) {
-      console.error('Error selecting class:', error);
-      const message = error?.response?.data?.message || error?.message || 'Failed to load class details.';
-      toast.error(message);
+      // Error handled silently
     }
   };
 
@@ -135,7 +112,6 @@ export default function ClassPage() {
     try {
       const classId = classItem.id || classItem.class_id || classItem.ID;
       if (!classId) {
-        toast.error('Invalid class data. Cannot delete.');
         return;
       }
       
@@ -150,8 +126,7 @@ export default function ClassPage() {
         }
       }
     } catch (error) {
-      console.error('Error deleting class:', error);
-      toast.error('Failed to delete class. Please try again.');
+      // Error handled silently
     }
   };
 
@@ -215,11 +190,11 @@ export default function ClassPage() {
           ) : (
             <div className="overflow-hidden">
               <ul className="divide-y divide-gray-200">
-                {classes.map((classItem, index) => {
+                {classes.map((classItem) => {
                   const classId = classItem.id || classItem.class_id || classItem.ID;
                   return (
                     <li
-                      key={classId || `class-${index}-${classItem.name}`}
+                      key={classId || `class-${classItem.name}`}
                       className="px-6 py-4 hover:bg-gray-50 transition-colors cursor-pointer"
                       onClick={() => handleSelectClass(classItem)}
                     >
@@ -264,31 +239,6 @@ export default function ClassPage() {
                   );
                 })}
               </ul>
-            </div>
-          )}
-
-          {/* Pagination */}
-          {!loading && classes.length > 0 && (pagination.has_more || pagination.page > 1) && (
-            <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-              <div className="text-sm text-gray-700">
-                Page {pagination.page} of {Math.ceil(pagination.total / pagination.limit) || 1} ({pagination.total} total)
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => fetchClasses(pagination.page - 1)}
-                  disabled={pagination.page <= 1}
-                  className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Previous
-                </button>
-                <button
-                  onClick={() => fetchClasses(pagination.page + 1)}
-                  disabled={!pagination.has_more}
-                  className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Next
-                </button>
-              </div>
             </div>
           )}
         </div>

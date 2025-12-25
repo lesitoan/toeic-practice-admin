@@ -24,7 +24,13 @@ export default function CreateTestRunModal({ isOpen, onClose, test, onSuccess })
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : (type === 'number' ? parseInt(value) || 0 : value)
+      [name]: type === 'checkbox' 
+        ? checked 
+        : (type === 'number' 
+          ? parseInt(value) || 0 
+          : (name === 'scope' || name === 'mode' 
+            ? parseInt(value) 
+            : value))
     }));
   };
 

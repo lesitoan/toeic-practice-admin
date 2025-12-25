@@ -341,10 +341,7 @@ export default function PartEditor({ part, initialData, onSave, onClose, testTem
         toast.error(`Passage "${passage.ref}" must have content for TEXT type`);
         return;
       }
-      if (passage.questions?.length === 0) {
-        toast.error(`Passage "${passage.ref}" must have at least one question`);
-        return;
-      }
+      // Passage can have zero questions - validation removed
       for (const question of passage.questions || []) {
         if (!question.question?.trim()) {
           toast.error('All questions must have question text');
@@ -519,7 +516,7 @@ export default function PartEditor({ part, initialData, onSave, onClose, testTem
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Audio Upload (MP3) <span className="text-red-500">*</span>
                 </label>
-                {passage.audioFile || passage.public_id ? (
+                {passage.audioPreview || passage.public_id || passage.audioFile ? (
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 p-3 bg-gray-50 border border-gray-300 rounded-md">
                       <div className="flex-1">
@@ -533,7 +530,7 @@ export default function PartEditor({ part, initialData, onSave, onClose, testTem
                         )}
                       </div>
                       <audio controls className="flex-1 max-w-xs">
-                        <source src={passage.audioPreview || passage.public_id} type="audio/mpeg" />
+                        <source src={passage.audioPreview || passage.public_id || (passage.audioFile ? URL.createObjectURL(passage.audioFile) : '')} type="audio/mpeg" />
                       </audio>
                       <button
                         type="button"

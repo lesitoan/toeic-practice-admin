@@ -16,59 +16,41 @@ const UsersStatsCards = ({ users }) => {
     {
       label: 'Total Users',
       value: totalUsers,
-      icon: 'T',
-      color: 'blue',
-      bgColor: 'bg-blue-100',
-      textColor: 'text-blue-700'
+      gradient: 'from-indigo-500 to-blue-500'
     },
     {
       label: 'Active Users',
       value: activeUsers,
-      icon: 'A',
-      color: 'green',
-      bgColor: 'bg-green-100',
-      textColor: 'text-green-700'
+      gradient: 'from-teal-500 to-green-500'
     },
     {
       label: 'Inactive Users',
       value: inactiveUsers,
-      icon: 'I',
-      color: 'yellow',
-      bgColor: 'bg-yellow-100',
-      textColor: 'text-yellow-700'
+      gradient: 'from-orange-500 to-red-500'
     },
     {
       label: 'Avg Score',
       value: `${averageScore}%`,
-      icon: 'S',
-      color: 'purple',
-      bgColor: 'bg-purple-100',
-      textColor: 'text-purple-700'
+      gradient: 'from-violet-500 to-purple-500'
     }
   ];
 
   return (
     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
       {stats.map((stat, index) => (
-        <div key={index} className="card-block">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <div className="h-6 w-6 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(91, 86, 227, 0.1)' }}>
-                <span className="text-sm font-medium" style={{ color: 'var(--color-primary)' }}>
-                  {stat.icon}
-                </span>
-              </div>
-            </div>
-            <div className="ml-5 w-0 flex-1">
-              <dl>
-                <dt className="text-sm font-medium truncate" style={{ color: 'var(--color-text-secondary)' }}>
-                  {stat.label}
-                </dt>
-                <dd className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                  {stat.value}
-                </dd>
-              </dl>
-            </div>
+        <div 
+          key={index} 
+          className={`card-block bg-gradient-to-br ${stat.gradient} text-white rounded-xl shadow-lg overflow-hidden`}
+        >
+          <div className="p-6">
+            <dl>
+              <dt className="text-sm font-serif font-bold uppercase tracking-wide opacity-90 mb-2">
+                {stat.label}
+              </dt>
+              <dd className="text-4xl font-serif font-bold">
+                {stat.value}
+              </dd>
+            </dl>
           </div>
         </div>
       ))}

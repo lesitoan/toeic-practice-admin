@@ -123,6 +123,7 @@ export default function CreateClassModal({ isOpen, onClose, onSave }) {
 
       // Create class with student IDs
       const response = await classesService.createClass({
+        id : 0,
         name: className.trim(),
         student_ids: validUserIds,
       });

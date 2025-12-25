@@ -3,67 +3,55 @@ import React from 'react';
 const ResultsStatsCards = ({ results }) => {
   // Calculate statistics
   const totalResults = results.length;
-  const averageScore = Math.round(results.reduce((acc, result) => acc + result.score, 0) / results.length);
-  const highestScore = Math.max(...results.map(r => r.score));
-  const uniqueStudents = new Set(results.map(r => r.student)).size;
+  const averageScore = results.length > 0 
+    ? Math.round(results.reduce((acc, result) => acc + result.score, 0) / results.length)
+    : 0;
+  const highestScore = results.length > 0 
+    ? Math.max(...results.map(r => r.score))
+    : 0;
+  const uniqueStudents = results.length > 0 
+    ? new Set(results.map(r => r.student)).size
+    : 0;
 
   const stats = [
     {
       label: 'Total Results',
       value: totalResults,
-      icon: 'T',
-      color: 'blue',
-      bgColor: 'bg-blue-100',
-      textColor: 'text-blue-700'
+      gradient: 'from-sky-500 to-blue-600'
     },
     {
       label: 'Average Score',
       value: `${averageScore}%`,
-      icon: 'A',
-      color: 'green',
-      bgColor: 'bg-green-100',
-      textColor: 'text-green-700'
+      gradient: 'from-lime-500 to-green-600'
     },
     {
       label: 'Highest Score',
       value: `${highestScore}%`,
-      icon: 'H',
-      color: 'yellow',
-      bgColor: 'bg-yellow-100',
-      textColor: 'text-yellow-700'
+      gradient: 'from-amber-500 to-yellow-600'
     },
     {
       label: 'Students',
       value: uniqueStudents,
-      icon: 'S',
-      color: 'purple',
-      bgColor: 'bg-purple-100',
-      textColor: 'text-purple-700'
+      gradient: 'from-fuchsia-500 to-pink-600'
     }
   ];
 
   return (
     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
       {stats.map((stat, index) => (
-        <div key={index} className="card-block">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <div className="h-6 w-6 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(91, 86, 227, 0.1)' }}>
-                <span className="text-sm font-medium" style={{ color: 'var(--color-primary)' }}>
-                  {stat.icon}
-                </span>
-              </div>
-            </div>
-            <div className="ml-5 w-0 flex-1">
-              <dl>
-                <dt className="text-sm font-medium truncate" style={{ color: 'var(--color-text-secondary)' }}>
-                  {stat.label}
-                </dt>
-                <dd className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                  {stat.value}
-                </dd>
-              </dl>
-            </div>
+        <div 
+          key={index} 
+          className={`card-block bg-gradient-to-br ${stat.gradient} text-white rounded-xl shadow-lg overflow-hidden`}
+        >
+          <div className="p-6">
+            <dl>
+              <dt className="text-sm font-serif font-bold uppercase tracking-wide opacity-90 mb-2">
+                {stat.label}
+              </dt>
+              <dd className="text-4xl font-serif font-bold">
+                {stat.value}
+              </dd>
+            </dl>
           </div>
         </div>
       ))}

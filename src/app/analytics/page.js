@@ -13,12 +13,70 @@ import { PERIOD_OPTIONS } from '@/constants/analytics';
 export default function Analytics() {
   const [selectedPeriod, setSelectedPeriod] = useState('12months');
   
-  // Empty data arrays - replace with API calls when ready
-  const scoreData = [];
-  const testCompletionData = [];
-  const userProgressData = [];
-  const scoreDistribution = [];
-  const recentActivity = [];
+  // Mock data for Score Trends (12 months)
+  const scoreData = [
+    { month: 'Jan', averageScore: 72, totalTests: 45, activeUsers: 120 },
+    { month: 'Feb', averageScore: 75, totalTests: 52, activeUsers: 135 },
+    { month: 'Mar', averageScore: 78, totalTests: 58, activeUsers: 148 },
+    { month: 'Apr', averageScore: 80, totalTests: 64, activeUsers: 162 },
+    { month: 'May', averageScore: 82, totalTests: 71, activeUsers: 175 },
+    { month: 'Jun', averageScore: 85, totalTests: 78, activeUsers: 188 },
+    { month: 'Jul', averageScore: 87, totalTests: 85, activeUsers: 195 },
+    { month: 'Aug', averageScore: 89, totalTests: 92, activeUsers: 210 },
+    { month: 'Sep', averageScore: 91, totalTests: 98, activeUsers: 225 },
+    { month: 'Oct', averageScore: 88, totalTests: 105, activeUsers: 240 },
+    { month: 'Nov', averageScore: 90, totalTests: 112, activeUsers: 255 },
+    { month: 'Dec', averageScore: 92, totalTests: 120, activeUsers: 270 },
+  ];
+
+  // Mock data for Test Completion Rates
+  const testCompletionData = [
+    { test: 'TOEIC Practice Test 1', completionRate: 95, averageScore: 88 },
+    { test: 'TOEIC Practice Test 2', completionRate: 92, averageScore: 85 },
+    { test: 'TOEIC Practice Test 3', completionRate: 89, averageScore: 82 },
+    { test: 'TOEIC Practice Test 4', completionRate: 87, averageScore: 80 },
+    { test: 'TOEIC Practice Test 5', completionRate: 84, averageScore: 78 },
+    { test: 'TOEIC Practice Test 6', completionRate: 91, averageScore: 86 },
+    { test: 'TOEIC Practice Test 7', completionRate: 88, averageScore: 83 },
+    { test: 'TOEIC Practice Test 8', completionRate: 86, averageScore: 81 },
+  ];
+
+  // Mock data for Top Performing Students
+  const userProgressData = [
+    { user: 'Le Si Toan', testsTaken: 45, averageScore: 95, improvement: '+12%' },
+    { user: 'Tran Thi Bao Tram', testsTaken: 42, averageScore: 93, improvement: '+10%' },
+    { user: 'Truong Dinh Luu', testsTaken: 38, averageScore: 91, improvement: '+8%' },
+    { user: 'Huynh Vinh Tan', testsTaken: 40, averageScore: 89, improvement: '+15%' },
+    { user: 'Quin', testsTaken: 35, averageScore: 87, improvement: '+7%' },
+    { user: 'Con meò bò sữa', testsTaken: 33, averageScore: 85, improvement: '+9%' },
+    { user: 'Vô Song', testsTaken: 30, averageScore: 83, improvement: '+6%' },
+    { user: 'Lê Sĩ Toàn', testsTaken: 28, averageScore: 81, improvement: '+11%' },
+    { user: 'Dinh Luu', testsTaken: 25, averageScore: 79, improvement: '+5%' },
+    { user: 'Lưu Trương', testsTaken: 22, averageScore: 77, improvement: '+8%' },
+  ];
+
+  // Mock data for Score Distribution
+  const scoreDistribution = [
+    { range: '90-100', count: 125, percentage: 25, color: 'bg-green-500' },
+    { range: '80-89', count: 200, percentage: 40, color: 'bg-blue-500' },
+    { range: '70-79', count: 100, percentage: 20, color: 'bg-yellow-500' },
+    { range: '60-69', count: 50, percentage: 10, color: 'bg-orange-500' },
+    { range: '0-59', count: 25, percentage: 5, color: 'bg-red-500' },
+  ];
+
+  // Mock data for Recent Activity
+  const recentActivity = [
+    { type: 'user', action: 'Nguyen Van A completed TOEIC Practice Test 8', time: '2 minutes ago' },
+    { type: 'test', action: 'New test "TOEIC Practice Test 9" was created', time: '15 minutes ago' },
+    { type: 'achievement', action: 'Tran Thi B achieved 90% score milestone', time: '1 hour ago' },
+    { type: 'user', action: 'Le Van C started a new practice session', time: '2 hours ago' },
+    { type: 'admin', action: 'System backup completed successfully', time: '3 hours ago' },
+    { type: 'user', action: 'Pham Thi D improved score by 5%', time: '4 hours ago' },
+    { type: 'test', action: 'Test results updated for 15 students', time: '5 hours ago' },
+    { type: 'achievement', action: 'Hoang Van E reached 50 tests milestone', time: '6 hours ago' },
+    { type: 'user', action: 'Vu Thi F completed TOEIC Practice Test 7', time: '7 hours ago' },
+    { type: 'system', action: 'Daily analytics report generated', time: '8 hours ago' },
+  ];
 
   return (
     <DashboardLayout>

@@ -2,12 +2,10 @@ import apiClient from '@/utils/axios';
 import { API_ENDPOINTS } from '@/config/api';
 
 class ClassesService {
-  // Get all classes with pagination
-  async getAllClasses(page = 1, limit = 20) {
+  // Get all classes
+  async getAllClasses() {
     try {
-      const response = await apiClient.get(API_ENDPOINTS.CLASSES.BASE, {
-        params: { page, limit },
-      });
+      const response = await apiClient.get(API_ENDPOINTS.CLASSES.BASE);
       return response.data;
     } catch (error) {
       console.error('Get all classes error:', error);
