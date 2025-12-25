@@ -1,5 +1,4 @@
 import React from 'react';
-import { BookOpenIcon } from '@heroicons/react/24/outline';
 
 const VocabularyStatsCards = ({ vocabularies }) => {
   // Ensure vocabularies is an array
@@ -15,64 +14,41 @@ const VocabularyStatsCards = ({ vocabularies }) => {
     {
       label: 'Total Words',
       value: totalWords,
-      icon: BookOpenIcon,
-      color: 'blue',
-      iconColor: 'text-blue-600'
+      gradient: 'from-cyan-500 to-blue-500'
     },
     {
       label: 'Beginner',
       value: beginnerWords,
-      icon: 'B',
-      color: 'green',
-      bgColor: 'bg-green-100',
-      textColor: 'text-green-600'
+      gradient: 'from-emerald-500 to-teal-500'
     },
     {
       label: 'Intermediate',
       value: intermediateWords,
-      icon: 'I',
-      color: 'yellow',
-      bgColor: 'bg-yellow-100',
-      textColor: 'text-yellow-600'
+      gradient: 'from-yellow-400 to-orange-500'
     },
     {
       label: 'Advanced',
       value: advancedWords,
-      icon: 'A',
-      color: 'red',
-      bgColor: 'bg-red-100',
-      textColor: 'text-red-600'
+      gradient: 'from-rose-500 to-red-600'
     }
   ];
 
   return (
     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
       {stats.map((stat, index) => (
-        <div key={index} className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                {typeof stat.icon === 'string' ? (
-                  <div className={`h-6 w-6 rounded-full ${stat.bgColor} flex items-center justify-center`}>
-                    <span className={`text-xs font-medium ${stat.textColor}`}>
-                      {stat.icon}
-                    </span>
-                  </div>
-                ) : (
-                  <stat.icon className={`h-6 w-6 ${stat.iconColor}`} />
-                )}
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    {stat.label}
-                  </dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {stat.value}
-                  </dd>
-                </dl>
-              </div>
-            </div>
+        <div 
+          key={index} 
+          className={`card-block bg-gradient-to-br ${stat.gradient} text-white rounded-xl shadow-lg overflow-hidden`}
+        >
+          <div className="p-6">
+            <dl>
+              <dt className="text-sm font-serif font-bold uppercase tracking-wide opacity-90 mb-2">
+                {stat.label}
+              </dt>
+              <dd className="text-4xl font-serif font-bold">
+                {stat.value}
+              </dd>
+            </dl>
           </div>
         </div>
       ))}

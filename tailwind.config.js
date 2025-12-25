@@ -24,6 +24,16 @@ export default {
         textPrimary: '#FFFFFF',
         buttonPrimary: '#35509a',
         buttonHover: '#2b417e',
+        // New color palette
+        primary: '#5B56E3',
+        success: '#10B981',
+        warning: '#F59E0B',
+        danger: '#EF4444',
+        'bg-light': '#F9FAFB',
+        'bg-card': '#FFFFFF',
+        'text-primary': '#1F2937',
+        'text-secondary': '#6B7280',
+        border: '#E5E7EB',
         blue: {
           600: '#2b417e',
           700: '#2c4383ff',

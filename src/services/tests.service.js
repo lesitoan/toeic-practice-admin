@@ -84,6 +84,95 @@ class TestsService {
       throw error;
     }
   }
+
+  async getAIAdvice(topic, part, description) {
+    try {
+      const response = await apiClient.post(API_ENDPOINTS.CHATBOT.ADVICE_QUESTIONS, {
+        topic,
+        part,
+        description,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Get AI advice error:', error);
+      throw error;
+    }
+  }
+
+  async getTestById(templateId, params = {}) {
+    if (!templateId) {
+      throw new Error('Test template ID is required');
+    }
+
+    try {
+      const {
+        page = 1,
+        limit = 20,
+        sort_by = 'id',
+        sort_type = -1,
+        name = 'default',
+      } = params;
+
+      const response = await apiClient.get(API_ENDPOINTS.TESTS.GET_BY_ID(templateId), {
+        params: {
+          page,
+          limit,
+          sort_by,
+          sort_type,
+          name,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Get test by ID error:', error);
+      throw error;
+    }
+  }
+
+  async uploadFileToCloudinary(file, signature) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('api_key', signature.api_key);
+    formData.append('timestamp', signature.timestamp);
+    formData.append('signature', signature.signature);
+    formData.append('folder', signature.folder);
+    if (signature.allowed_formats) {
+      formData.append('allowed_formats', signature.allowed_formats);
+    }
+
+    const response = await fetch(signature.upload_url, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData?.error?.message ||
+          errorData?.message ||
+          'Failed to upload file to Cloudinary'
+      );
+    }
+
+    const data = await response.json();
+    return data.secure_url;
+  }
+
+  async deleteTest(templateId, name = 'default') {
+    if (!templateId) {
+      throw new Error('Test template ID is required');
+    }
+
+    try {
+      const response = await apiClient.delete(API_ENDPOINTS.TESTS.DELETE(templateId), {
+        params: { name },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Delete test error:', error);
+      throw error;
+    }
+  }
 }
 
 export default new TestsService();

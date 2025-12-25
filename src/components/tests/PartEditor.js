@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { XMarkIcon, PlusIcon, TrashIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
 import testsService from '@/services/tests.service';
+import AIAssistant from './AIAssistant';
 
 const DEFAULT_DIFFICULTY = 'EASY';
 const PASSAGE_TYPES = [
@@ -19,7 +20,7 @@ const generatePassageRef = () => {
   return `p-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 };
 
-export default function PartEditor({ part, initialData, onSave, onClose, testTemplateId, templateMeta }) {
+export default function PartEditor({ part, initialData, onSave, onClose, testTemplateId, templateMeta, existingPartsData = {} }) {
   // Structure: passages with questions inside
   const [passages, setPassages] = useState(() => {
     // Convert old format to new format if needed
@@ -321,14 +322,10 @@ export default function PartEditor({ part, initialData, onSave, onClose, testTem
     return data.secure_url;
   };
 
-  const handleSave = async () => {
-    if (!testTemplateId) {
-      toast.error('Test template is not ready. Please close and reopen the modal.');
-      return;
-    }
-
+  const handleSave = () => {
+    // Only validate, don't call API
     if (!templateMeta?.name?.trim()) {
-      toast.error('Template name is required before saving.');
+      toast.error('Template name is required.');
       return;
     }
 
@@ -344,10 +341,7 @@ export default function PartEditor({ part, initialData, onSave, onClose, testTem
         toast.error(`Passage "${passage.ref}" must have content for TEXT type`);
         return;
       }
-      if (passage.questions?.length === 0) {
-        toast.error(`Passage "${passage.ref}" must have at least one question`);
-        return;
-      }
+      // Passage can have zero questions - validation removed
       for (const question of passage.questions || []) {
         if (!question.question?.trim()) {
           toast.error('All questions must have question text');
@@ -363,96 +357,12 @@ export default function PartEditor({ part, initialData, onSave, onClose, testTem
     setIsSaving(true);
 
     try {
-      const signature = await testsService.getCloudinarySignature(testTemplateId);
-
-      const passagesPayload = [];
-      const questionsPayload = [];
-
-      for (const passage of passages) {
-        let passageContent = '';
-        let passagePublicId = '';
-
-        // Handle passage content based on type
-        if (passage.type === 'TEXT') {
-          passageContent = passage.content?.trim() || '';
-        } else if (passage.type === 'IMAGE') {
-          // Upload image file if exists
-          if (passage.imageFile) {
-            passagePublicId = await uploadFileToCloudinary(passage.imageFile, signature);
-            if (passage.imagePreview && passage.imagePreview.startsWith('blob:')) {
-              URL.revokeObjectURL(passage.imagePreview);
-            }
-          } else if (passage.public_id) {
-            passagePublicId = passage.public_id;
-          }
-        } else if (passage.type === 'AUDIO') {
-          // Upload audio file if exists
-          if (passage.audioFile) {
-            passagePublicId = await uploadFileToCloudinary(passage.audioFile, signature);
-            if (passage.audioPreview && passage.audioPreview.startsWith('blob:')) {
-              URL.revokeObjectURL(passage.audioPreview);
-            }
-          } else if (passage.public_id) {
-            passagePublicId = passage.public_id;
-          }
-        }
-
-        passagesPayload.push({
-          ref: passage.ref.trim(),
-          type: passage.type,
-          content: passageContent,
-          public_id: passagePublicId,
-          instructions: passage.instructions?.trim() || '',
-        });
-
-        // Process questions for this passage
-        for (const question of passage.questions || []) {
-
-          const answers = question.options.map((option, optionIndex) => ({
-            text: option.trim(),
-            is_correct: question.correctAnswer === optionIndex,
-            order: optionIndex + 1,
-          }));
-
-          questionsPayload.push({
-            content: question.question.trim(),
-            difficulty: (question.difficulty || DEFAULT_DIFFICULTY).toUpperCase(),
-            part: part.id,
-            passage_ref: passage.ref.trim(),
-            answers,
-          });
-        }
-      }
-
-      const templatePayload = {
-        name: templateMeta?.name?.trim() || 'Untitled Template',
-        description: templateMeta?.description || '',
-        status: templateMeta?.status || 'draft',
-        content: {
-          passages: passagesPayload,
-          questions: questionsPayload,
-        },
-      };
-
-      console.log('Saving part to API:', {
-        testTemplateId,
-        part: part.id,
-        passagesCount: passagesPayload.length,
-        questionsCount: questionsPayload.length,
-        payload: templatePayload
-      });
-
-      const response = await testsService.enqueueTemplateImport(testTemplateId, templatePayload);
-      
-      console.log('API response:', response);
-
+      // Prepare part data (keep files for later upload)
       const partData = {
         passages: passages.map(p => ({
           ...p,
-          imageFile: null,
-          audioFile: null,
-          imagePreview: p.imagePreview?.startsWith('blob:') ? '' : p.imagePreview,
-          audioPreview: p.audioPreview?.startsWith('blob:') ? '' : p.audioPreview,
+          // Keep imageFile and audioFile for later upload
+          // Keep imagePreview and audioPreview for display
           questions: p.questions || []
         })),
         config: partConfig,
@@ -460,14 +370,10 @@ export default function PartEditor({ part, initialData, onSave, onClose, testTem
       };
 
       onSave(partData);
-      toast.success(`${part.name} saved successfully to database!`);
+      toast.success(`${part.name} saved to draft!`);
     } catch (error) {
       console.error('Save part error:', error);
-      const message =
-        error?.response?.data?.message ||
-        error?.message ||
-        'Failed to save part. Please try again.';
-      toast.error(message);
+      toast.error('Failed to save part data.');
     } finally {
       setIsSaving(false);
     }
@@ -610,7 +516,7 @@ export default function PartEditor({ part, initialData, onSave, onClose, testTem
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Audio Upload (MP3) <span className="text-red-500">*</span>
                 </label>
-                {passage.audioFile || passage.public_id ? (
+                {passage.audioPreview || passage.public_id || passage.audioFile ? (
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 p-3 bg-gray-50 border border-gray-300 rounded-md">
                       <div className="flex-1">
@@ -624,7 +530,7 @@ export default function PartEditor({ part, initialData, onSave, onClose, testTem
                         )}
                       </div>
                       <audio controls className="flex-1 max-w-xs">
-                        <source src={passage.audioPreview || passage.public_id} type="audio/mpeg" />
+                        <source src={passage.audioPreview || passage.public_id || (passage.audioFile ? URL.createObjectURL(passage.audioFile) : '')} type="audio/mpeg" />
                       </audio>
                       <button
                         type="button"
@@ -777,7 +683,7 @@ export default function PartEditor({ part, initialData, onSave, onClose, testTem
       <div className="flex min-h-screen items-center justify-center p-4">
         <div className="fixed inset-0 bg-gray-900/50" onClick={onClose} />
         
-        <div className="relative w-full max-w-5xl bg-white rounded-lg shadow-xl max-h-[90vh] flex flex-col">
+        <div className="relative w-full max-w-7xl bg-white rounded-lg shadow-xl max-h-[90vh] flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
             <div>
@@ -792,8 +698,10 @@ export default function PartEditor({ part, initialData, onSave, onClose, testTem
             </button>
           </div>
 
-          {/* Content - Scrollable */}
-          <div className="px-6 py-4 overflow-y-auto flex-1">
+          {/* Content - Two Column Layout */}
+          <div className="flex flex-1 overflow-hidden">
+            {/* Main Content - Scrollable */}
+            <div className="flex-1 px-6 py-4 overflow-y-auto">
             {/* Add Passage Button */}
             <div className="mb-4">
               <button
@@ -815,6 +723,14 @@ export default function PartEditor({ part, initialData, onSave, onClose, testTem
                 {passages.map((passage, index) => renderPassageEditor(passage, index))}
               </div>
             )}
+            </div>
+
+            {/* AI Assistant Sidebar */}
+            <div className="w-96 border-l border-gray-200 bg-gray-50 overflow-y-auto">
+              <div className="p-4">
+                <AIAssistant partId={part.id} />
+              </div>
+            </div>
           </div>
 
           {/* Footer */}

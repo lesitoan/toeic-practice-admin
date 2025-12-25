@@ -36,9 +36,21 @@ export default function VocabularyDetail({
               <button
                 type="button"
                 onClick={() => onEdit(vocabulary)}
-                className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="inline-flex items-center px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 shadow-sm"
+                style={{ 
+                  backgroundColor: 'var(--color-primary)',
+                  color: '#FFFFFF'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(91, 86, 227, 0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 1px 3px rgba(91, 86, 227, 0.2)';
+                }}
               >
-                <PencilIcon className="h-4 w-4 mr-1" />
+                <PencilIcon className="h-4 w-4 mr-1.5" />
                 Edit
               </button>
               <button

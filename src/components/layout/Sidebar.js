@@ -10,7 +10,8 @@ import {
   DocumentTextIcon, 
   ChartBarIcon, 
   XMarkIcon,
-  BookOpenIcon
+  BookOpenIcon,
+  AcademicCapIcon
 } from '@heroicons/react/24/outline';
 import authService from '@/services/auth.service';
 
@@ -19,6 +20,7 @@ const navigation = [
   { name: 'Users', href: '/users', icon: UsersIcon },
   { name: 'Tests', href: '/tests', icon: DocumentTextIcon },
   { name: 'Vocabulary', href: '/vocabulary', icon: BookOpenIcon },
+  { name: 'Class', href: '/class', icon: AcademicCapIcon },
   { name: 'Results', href: '/results', icon: ChartBarIcon },
   { name: 'Analytics', href: '/analytics', icon: ChartBarIcon },
 ];
@@ -58,7 +60,7 @@ export default function Sidebar({ open, setOpen }) {
       {/* Mobile sidebar */}
       <div className={`fixed inset-0 z-50 lg:hidden ${open ? 'block' : 'hidden'}`}>
         <div className="fixed inset-0 bg-gray-900/80" onClick={() => setOpen(false)} />
-        <div className="fixed inset-y-0 left-0 z-50 w-72 bg-gradient-to-b from-blue-600 via-blue-700 to-indigo-800">
+        <div className="fixed inset-y-0 left-0 z-50 w-72 sidebar">
           <div className="flex h-16 items-center justify-between px-6 border-b border-blue-500/30">
             <div className="flex items-center">
               <Image
@@ -86,10 +88,10 @@ export default function Sidebar({ open, setOpen }) {
                   <li key={item.name}>
                     <Link
                       href={item.href}
-                      className={`group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all ${
+                      className={`group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all nav-item ${
                         isActive
-                          ? 'bg-white/20 text-white shadow-lg border-r-2 border-white'
-                          : 'text-white/80 hover:bg-white/10 hover:text-white'
+                          ? 'active bg-white/20 text-white shadow-lg border-l-4 border-white'
+                          : 'text-white/60 hover:bg-white/10 hover:text-white'
                       }`}
                       onClick={() => setOpen(false)}
                     >
@@ -108,7 +110,7 @@ export default function Sidebar({ open, setOpen }) {
 
       {/* Desktop sidebar */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-        <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gradient-to-b from-blue-600 via-blue-700 to-indigo-800 px-6 pb-4">
+        <div className="flex grow flex-col gap-y-5 overflow-y-auto sidebar px-6 pb-4">
           <div className="flex h-16 items-center border-b border-blue-500/30">
             <Image
               src="/logo/default-logo.png"

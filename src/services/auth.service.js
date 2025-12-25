@@ -112,6 +112,13 @@ class AuthService {
         localStorage.setItem('user', JSON.stringify(user));
       }
       
+      // Check if user has Student role (role_id = 3) - block from admin panel
+      if (user && (user.role_id === 3 || user.roleID === 3)) {
+        // Clear all auth data
+        this.clearAuthData();
+        throw new Error('Bạn không có quyền truy cập vào trang quản trị. Chỉ Admin và Staff mới có thể đăng nhập.');
+      }
+      
       console.log('Login successful, tokens stored');
       
       return {

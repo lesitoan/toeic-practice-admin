@@ -1,36 +1,153 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import ResultsStatsCards from '@/components/results/ResultsStatsCards';
-import ScoreDistributionChart from '@/components/results/ScoreDistributionChart';
-import ResultsFilters from '@/components/results/ResultsFilters';
-import ResultsTable from '@/components/results/ResultsTable';
-export default function Results() {
-  const [results, setResults] = useState([]);
-  const [selectedFilter, setSelectedFilter] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
+import UserResultsTable from '@/components/results/UserResultsTable';
+import TestSessionModal from '@/components/results/TestSessionModal';
+import TestSessionDetailModal from '@/components/results/TestSessionDetailModal';
+import usersService from '@/services/users.service';
+import { toast } from 'react-toastify';
 
-  // Filter results based on search and filter
-  const filteredResults = results.filter(result => {
-    // Search filter
-    const matchesSearch = !searchTerm || 
-      result.student.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      result.test.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    // Score filter
-    let matchesScore = true;
-    if (selectedFilter === 'excellent') matchesScore = result.score >= 90;
-    else if (selectedFilter === 'good') matchesScore = result.score >= 80 && result.score < 90;
-    else if (selectedFilter === 'average') matchesScore = result.score >= 70 && result.score < 80;
-    else if (selectedFilter === 'below') matchesScore = result.score < 70;
-    
-    return matchesSearch && matchesScore;
+export default function Results() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [testSessions, setTestSessions] = useState([]);
+  const [loadingSessions, setLoadingSessions] = useState(false);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [testDetail, setTestDetail] = useState(null);
+  const [loadingDetail, setLoadingDetail] = useState(false);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 20,
+    total: 0
   });
 
-  const handleExport = () => {
-    // Handle export logic
-    console.log('Exporting results...');
+  // Fetch users from API
+  const fetchUsers = async (page = 1, limit = 20) => {
+    try {
+      setLoading(true);
+      const response = await usersService.getUsersPaginated(page, limit);
+
+      // API format: { total, items, page, limit }
+      if (response && Array.isArray(response.items)) {
+        const mapped = response.items.map((u) => {
+          return {
+            id: u.id,
+            name: u.name || '-',
+            email: u.email || '-',
+            avatar: u.avatar || null,
+            gender: u.gender,
+            age: u.age,
+            role_id: u.role_id,
+            is_active: u.is_active,
+            deleted_by: u.deleted_by,
+            deleted_at: u.deleted_at,
+            status: u.deleted_at ? 'Inactive' : 'Active',
+            lastLogin: '-',
+            testsTaken: '-',
+            averageScore: '-',
+            joinDate: '-',
+          };
+        });
+        setUsers(mapped);
+        setPagination({
+          page: response.page ?? page,
+          limit: response.limit ?? limit,
+          total: response.total ?? mapped.length,
+        });
+      } else if (Array.isArray(response)) {
+        setUsers(response);
+        setPagination(prev => ({ ...prev, page, limit, total: response.length }));
+      } else if (response?.data && Array.isArray(response.data)) {
+        setUsers(response.data);
+        setPagination(prev => ({
+          ...prev,
+          page,
+          limit,
+          total: response.pagination?.totalItems || response.data.length,
+        }));
+      } else {
+        console.warn('Unexpected API response format:', response);
+        setUsers([]);
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      toast.error('Failed to fetch users. Please try again.');
+      setUsers([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load users on component mount
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  // Handle view result button click
+  const handleViewResult = async (user) => {
+    try {
+      setSelectedUser(user);
+      setIsModalOpen(true);
+      setLoadingSessions(true);
+      setTestSessions([]);
+
+      // Fetch test sessions for the user
+      const response = await usersService.getUserTestSessions(user.id, 20);
+      
+      // Handle response format: { items: [...], limit, has_more, next_cursor, ... }
+      if (response?.items && Array.isArray(response.items)) {
+        setTestSessions(response.items);
+      } else if (Array.isArray(response)) {
+        setTestSessions(response);
+      } else if (response?.data && Array.isArray(response.data)) {
+        setTestSessions(response.data);
+      } else {
+        setTestSessions([]);
+        toast.info('No test sessions found for this user.');
+      }
+    } catch (error) {
+      console.error('Error fetching test sessions:', error);
+      toast.error('Failed to load test sessions. Please try again.');
+      setTestSessions([]);
+    } finally {
+      setLoadingSessions(false);
+    }
+  };
+
+  const handlePageChange = (newPage) => {
+    fetchUsers(newPage, pagination.limit);
+  };
+
+  const handleLimitChange = (newLimit) => {
+    fetchUsers(1, newLimit);
+  };
+
+  // Handle view detail button click
+  const handleViewDetail = async (session) => {
+    if (!selectedUser) return;
+    
+    try {
+      setIsDetailModalOpen(true);
+      setLoadingDetail(true);
+      setTestDetail(null);
+
+      // Fetch test session detail
+      const detail = await usersService.getUserTestSessionDetail(
+        selectedUser.id,
+        session.test_session_id
+      );
+      
+      setTestDetail(detail);
+    } catch (error) {
+      console.error('Error fetching test session detail:', error);
+      toast.error('Failed to load test detail. Please try again.');
+      setIsDetailModalOpen(false);
+    } finally {
+      setLoadingDetail(false);
+    }
   };
 
   return (
@@ -39,41 +156,47 @@ export default function Results() {
         {/* Header */}
         <div className="sm:flex sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Test Results</h1>
-            <p className="mt-2 text-sm text-gray-700">
+            <h1 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>Test Results</h1>
+            <p className="mt-2 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
               View and analyze student performance across all TOEIC practice tests
             </p>
           </div>
-          <div className="mt-4 sm:mt-0">
-            <button
-              type="button"
-              onClick={handleExport}
-              className="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto"
-            >
-              Export Results
-            </button>
-          </div>
         </div>
 
-        {/* Stats Cards */}
-        <ResultsStatsCards results={results} />
+        {/* Users Table with View Result Button */}
+        <UserResultsTable
+          users={users}
+          onViewResult={handleViewResult}
+          loading={loading}
+          pagination={pagination}
+          onPageChange={handlePageChange}
+          onLimitChange={handleLimitChange}
+        />
 
-        {/* Score Distribution Chart */}
-        <ScoreDistributionChart results={results} />
+        {/* Test Session Modal */}
+        <TestSessionModal
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setSelectedUser(null);
+            setTestSessions([]);
+          }}
+          testSessions={testSessions}
+          user={selectedUser}
+          loading={loadingSessions}
+          onViewDetail={handleViewDetail}
+        />
 
-        {/* Filters and Results Table */}
-        <div className="bg-white shadow rounded-lg">
-          <ResultsFilters
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            selectedFilter={selectedFilter}
-            onFilterChange={setSelectedFilter}
-            filteredCount={filteredResults.length}
-            totalCount={results.length}
-          />
-
-          <ResultsTable results={filteredResults} />
-        </div>
+        {/* Test Session Detail Modal */}
+        <TestSessionDetailModal
+          isOpen={isDetailModalOpen}
+          onClose={() => {
+            setIsDetailModalOpen(false);
+            setTestDetail(null);
+          }}
+          testDetail={testDetail}
+          loading={loadingDetail}
+        />
       </div>
     </DashboardLayout>
   );

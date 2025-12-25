@@ -54,10 +54,14 @@ export default function Navbar({ onMenuClick }) {
   };
 
   return (
-    <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
+    <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8" style={{ 
+      backgroundColor: 'var(--color-bg-card)', 
+      borderBottom: '1px solid var(--color-border)' 
+    }}>
       <button
         type="button"
-        className="-m-2.5 p-2.5 text-gray-700 lg:hidden"
+        className="-m-2.5 p-2.5 lg:hidden"
+        style={{ color: 'var(--color-text-primary)' }}
         onClick={onMenuClick}
       >
         <span className="sr-only">Open sidebar</span>
@@ -65,16 +69,20 @@ export default function Navbar({ onMenuClick }) {
       </button>
 
       {/* Separator */}
-      <div className="h-6 w-px bg-gray-200 lg:hidden" />
+      <div className="h-6 w-px lg:hidden" style={{ backgroundColor: 'var(--color-border)' }} />
 
       <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
         {/* Search */}
         <div className="relative flex flex-1 items-center">
-          <MagnifyingGlassIcon className="pointer-events-none absolute inset-y-0 left-0 h-full w-5 text-gray-400" />
+          <MagnifyingGlassIcon className="pointer-events-none absolute inset-y-0 left-0 h-full w-5" style={{ color: 'var(--color-text-secondary)' }} />
           <input
             type="text"
             placeholder="Search..."
-            className="block h-full w-full border-0 py-0 pl-8 pr-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm"
+            className="block h-full w-full border-0 py-0 pl-8 pr-0 focus:ring-0 sm:text-sm"
+            style={{ 
+              color: 'var(--color-text-primary)',
+              backgroundColor: 'transparent'
+            }}
           />
         </div>
       </div>
@@ -83,7 +91,8 @@ export default function Navbar({ onMenuClick }) {
         {/* Notifications */}
         <button
           type="button"
-          className="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500"
+          className="-m-2.5 p-2.5"
+          style={{ color: 'var(--color-text-secondary)' }}
         >
           <span className="sr-only">View notifications</span>
           <div className="relative">
@@ -93,13 +102,14 @@ export default function Navbar({ onMenuClick }) {
         </button>
 
         {/* Separator */}
-        <div className="hidden lg:block lg:h-6 lg:w-px lg:bg-gray-200" />
+        <div className="hidden lg:block lg:h-6 lg:w-px" style={{ backgroundColor: 'var(--color-border)' }} />
 
         {/* Profile dropdown */}
         <div className="relative">
           <button
             type="button"
-            className="flex items-center gap-x-4 text-sm font-medium leading-6 text-gray-900"
+            className="flex items-center gap-x-4 text-sm font-medium leading-6"
+            style={{ color: 'var(--color-text-primary)' }}
             onClick={() => setIsProfileOpen(!isProfileOpen)}
           >
             {(() => {
@@ -109,7 +119,8 @@ export default function Navbar({ onMenuClick }) {
               
               return (
                 <img
-                  className="h-8 w-8 rounded-full bg-gray-50 object-cover"
+                  className="h-8 w-8 rounded-full object-cover"
+                  style={{ backgroundColor: 'var(--color-bg-light)' }}
                   src={avatar}
                   alt={user?.name || 'User'}
                   onError={(e) => {
@@ -120,27 +131,30 @@ export default function Navbar({ onMenuClick }) {
             })()}
             <span className="hidden lg:flex lg:items-center">
               {loading ? 'Loading...' : (user?.name || 'User')}
-              <ChevronDownIcon className="ml-2 h-5 w-5 text-gray-400" />
+              <ChevronDownIcon className="ml-2 h-5 w-5" style={{ color: 'var(--color-text-secondary)' }} />
             </span>
           </button>
 
           {isProfileOpen && (
-            <div className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+            <div className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" style={{ backgroundColor: 'var(--color-bg-card)' }}>
               <a
                 href="#"
-                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                className="block px-4 py-2 text-sm hover:bg-gray-100"
+                style={{ color: 'var(--color-text-primary)' }}
               >
                 Your profile
               </a>
               <a
                 href="#"
-                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                className="block px-4 py-2 text-sm hover:bg-gray-100"
+                style={{ color: 'var(--color-text-primary)' }}
               >
                 Settings
               </a>
               <button
                 onClick={handleSignOut}
-                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                style={{ color: 'var(--color-text-primary)' }}
               >
                 Sign out
               </button>

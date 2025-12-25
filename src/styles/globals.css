@@ -1,8 +1,25 @@
 @import "tailwindcss";
 
+/* ======================================= */
+/* I. BẢNG MÀU CHÍNH (COLOR PALETTE) */
+/* ======================================= */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Thương hiệu & Nhấn */
+  --color-primary: #5B56E3;      /* Xanh-Tím Hiện đại */
+  --color-success: #10B981;      /* Xanh lá - Điểm tốt */
+  --color-warning: #F59E0B;      /* Vàng cam - Điểm trung bình */
+  --color-danger: #EF4444;       /* Đỏ - Điểm thấp */
+
+  /* Nền & Chữ */
+  --color-bg-light: #F9FAFB;     /* Nền Dashboard */
+  --color-bg-card: #FFFFFF;      /* Nền Thẻ (Card) */
+  --color-text-primary: #1F2937; /* Tiêu đề, Nội dung quan trọng */
+  --color-text-secondary: #6B7280;/* Mô tả, Phụ */
+  --color-border: #E5E7EB;       /* Viền, thanh tiến trình nền */
+
+  /* Legacy variables for compatibility */
+  --background: var(--color-bg-card);
+  --foreground: var(--color-text-primary);
 }
 
 @theme inline {
@@ -12,15 +29,112 @@
   --font-mono: var(--font-geist-mono);
 }
 
-/* @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-} */
-
+/* ======================================= */
+/* II. THIẾT KẾ CHUNG (GLOBAL STYLES) */
+/* ======================================= */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--color-bg-light);
+  color: var(--color-text-primary);
+}
+
+/* Các khối thẻ chính (Card Blocks) */
+.card-block {
+  background-color: var(--color-bg-card);
+  border-radius: 8px; /* Bo góc hiện đại */
+  padding: 32px;
+  /* Hiệu ứng đổ bóng nhẹ, tinh tế */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 
+              0 4px 6px -4px rgba(0, 0, 0, 0.05);
+}
+
+.card-title {
+  color: var(--color-text-primary);
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+/* ======================================= */
+/* III. THANH ĐIỀU HƯỚNG BÊN TRÁI (SIDEBAR) */
+/* ======================================= */
+.sidebar {
+  background-color: var(--color-primary);
+}
+
+.nav-item {
+  color: rgba(255, 255, 255, 0.6); /* Trắng nhạt */
+  font-weight: 500;
+  padding: 12px 24px;
+  /* Sử dụng icon hiện đại (Outline hoặc Filled) kích thước 20px */
+}
+
+/* Trạng thái được chọn */
+.nav-item.active {
+  background-color: rgba(0, 0, 0, 0.1);
+  color: #FFFFFF;
+  font-weight: 600;
+  border-left: 4px solid #FFFFFF; /* Indicator Active */
+}
+
+/* ======================================= */
+/* IV. KHU VỰC HÀNH ĐỘNG NHANH (QUICK ACTIONS) */
+/* ======================================= */
+.quick-action-item {
+  text-align: center;
+  padding: 24px 16px;
+  background-color: var(--color-bg-light); /* Nền nhạt hơn */
+  border-radius: 6px;
+  transition: all 0.2s ease-in-out;
+}
+
+.quick-action-item:hover {
+  box-shadow: 0 4px 12px rgba(91, 86, 227, 0.15);
+  transform: translateY(-2px); /* Hiệu ứng nhấc nhẹ */
+  cursor: pointer;
+}
+
+.action-icon {
+  font-size: 28px;
+  color: var(--color-primary);
+  margin-bottom: 8px;
+}
+
+.action-description {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+
+/* ======================================= */
+/* V. PHÂN PHỐI ĐIỂM (SCORE DISTRIBUTION) */
+/* ======================================= */
+.progress-bar {
+  height: 12px;
+  border-radius: 6px; /* Bo tròn thanh tiến trình */
+  background-color: var(--color-border);
+}
+
+.progress-bar-fill {
+  border-radius: 6px;
+}
+
+/* Áp dụng màu sắc cho từng dải điểm */
+.score-90-100 { 
+  background-color: var(--color-success); 
+}
+
+.score-80-89 { 
+  background-color: #3B82F6; /* Xanh dương đậm */ 
+}
+
+.score-70-79 { 
+  background-color: var(--color-warning); 
+}
+
+.score-60-69 { 
+  background-color: #F97316; /* Cam đậm */ 
+}
+
+.score-below-60 { 
+  background-color: var(--color-danger); 
 }

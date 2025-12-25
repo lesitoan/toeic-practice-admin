@@ -48,7 +48,6 @@ export default function VocabularyPage() {
         const searchLower = filters.search.toLowerCase();
         filteredData = filteredData.filter(item => 
           item.word.toLowerCase().includes(searchLower) ||
-          item.definition.toLowerCase().includes(searchLower) ||
           (item.example && item.example.toLowerCase().includes(searchLower))
         );
       }
@@ -140,15 +139,18 @@ export default function VocabularyPage() {
         {/* Header */}
         <div className="sm:flex sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Vocabulary Management</h1>
-            <p className="mt-2 text-sm text-gray-700">
+            <h1 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>Vocabulary Management</h1>
+            <p className="mt-2 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
               Manage vocabulary words for TOEIC practice tests
             </p>
           </div>
           <div className="mt-4 sm:mt-0">
             <button
               onClick={handleAddVocabulary}
-              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 sm:w-auto"
+              style={{ backgroundColor: 'var(--color-primary)' }}
+              onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+              onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
             >
               <PlusIcon className="h-4 w-4 mr-2" />
               Add Vocabulary

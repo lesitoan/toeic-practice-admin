@@ -14,17 +14,28 @@ export const API_ENDPOINTS = {
     BASE: `${API_BASE_URL}api/v1/users`,
     DETAIL: `${API_BASE_URL}/api/v1/users/information/id`,
     DELETE: `${API_BASE_URL}api/v1/users/account`,
+    TEST_SESSION: (userId) => `${API_BASE_URL}api/v1/users/${userId}/test_session`,
+    TEST_SESSION_DETAIL: (userId, testSessionId) => `${API_BASE_URL}api/v1/users/${userId}/${testSessionId}`,
   },
   VOCABULARY: `${API_BASE_URL}api/v1/vocabulary`,
   TESTS: {
     BASE: `${API_BASE_URL}api/v1/tests`,
     CREATE_DRAFT: `${API_BASE_URL}api/v1/test/new_test`,
-    SIGN_UPLOAD: `${API_BASE_URL}api/v1/test/sign-upload-cloudinary`,
+    SIGN_UPLOAD: `${API_BASE_URL}api/v1/test/sign_upload_cloudinary`,
     ENQUEUE_TEMPLATE: `${API_BASE_URL}api/v1/test`,
-    GET_ALL: `${API_BASE_URL}api/v1/test/test-all`,
+    GET_ALL: `${API_BASE_URL}api/v1/test/test_all`,
+    GET_BY_ID: (templateId) => `${API_BASE_URL}api/v1/test/${templateId}`,
+    DELETE: (templateId) => `${API_BASE_URL}api/v1/test/${templateId}`,
     CREATE_TEST_RUN: `${API_BASE_URL}api/v1/test_run`,
   },
   ANALYTICS: `${API_BASE_URL}api/v1/analytics`,
+  CHATBOT: {
+    ADVICE_QUESTIONS: `${API_BASE_URL}api/v1/chatbot/advice_questions`,
+  },
+  CLASSES: {
+    BASE: `${API_BASE_URL}api/v1/class`,
+    MEMBERS: (classId) => `${API_BASE_URL}api/v1/class/${classId}/members`,
+  },
 };
 
 export default API_BASE_URL;    

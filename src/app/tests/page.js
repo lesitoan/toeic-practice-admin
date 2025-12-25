@@ -7,6 +7,8 @@ import TestsFilters from '@/components/tests/TestsFilters';
 import TestsTable from '@/components/tests/TestsTable';
 import CreateTestModal from '@/components/tests/CreateTestModal';
 import CreateTestRunModal from '@/components/tests/CreateTestRunModal';
+import ViewTestModal from '@/components/tests/ViewTestModal';
+import UpdateTestModal from '@/components/tests/UpdateTestModal';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
 import testsService from '@/services/tests.service';
@@ -15,7 +17,13 @@ export default function Tests() {
   const [tests, setTests] = useState([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isTestRunModalOpen, setIsTestRunModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [selectedTest, setSelectedTest] = useState(null);
+  const [viewingTest, setViewingTest] = useState(null);
+  const [viewingTestDetail, setViewingTestDetail] = useState(null);
+  const [isLoadingTestDetail, setIsLoadingTestDetail] = useState(false);
+  const [editingTest, setEditingTest] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -36,20 +44,23 @@ export default function Tests() {
       });
       
       // Map API response to match component structure
-      const mappedTests = (response.items || []).map(test => ({
-        id: test.id,
-        title: test.name,
-        name: test.name,
-        description: test.description || '',
-        status: test.status,
-        category: 'TOEIC Test', // Default category
-        difficulty: 'Intermediate', // Default difficulty
-        duration: '120 min', // Default duration
-        questions: 0, // Will be calculated if needed
-        assignedUsers: 0, // Will be calculated if needed
-        averageScore: 'N/A', // Will be calculated if needed
-        lastModified: 'N/A', // Will be calculated if needed
-      }));
+      // Filter out tests with status "deleted"
+      const mappedTests = (response.items || [])
+        .filter(test => test.status !== 'deleted')
+        .map(test => ({
+          id: test.id,
+          title: test.name,
+          name: test.name,
+          description: test.description || '',
+          status: test.status,
+          category: 'TOEIC Test', // Default category
+          difficulty: 'Intermediate', // Default difficulty
+          duration: '120 min', // Default duration
+          questions: 0, // Will be calculated if needed
+          assignedUsers: 0, // Will be calculated if needed
+          averageScore: 'N/A', // Will be calculated if needed
+          lastModified: 'N/A', // Will be calculated if needed
+        }));
       
       setTests(mappedTests);
     } catch (error) {
@@ -65,7 +76,13 @@ export default function Tests() {
   }, []);
 
   // Filter tests based on search and filters
+  // Also exclude tests with status "deleted" as a safety measure
   const filteredTests = tests.filter(test => {
+    // Always exclude deleted tests
+    if (test.status === 'deleted') {
+      return false;
+    }
+    
     const matchesSearch = !searchTerm || 
       test.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       test.description?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -78,17 +95,79 @@ export default function Tests() {
   });
 
   const handleEdit = (test) => {
-    console.log('Edit test:', test);
+    setEditingTest(test);
+    setIsUpdateModalOpen(true);
   };
 
-  const handleDelete = (test) => {
-    if (confirm(`Are you sure you want to delete "${test.title}"?`)) {
+  const handleDelete = async (test) => {
+    if (!confirm(`Are you sure you want to delete "${test.title || test.name}"?`)) {
+      return;
+    }
+
+    try {
+      const templateId = test.id;
+      if (!templateId) {
+        toast.error('Test ID not found. Cannot delete.');
+        return;
+      }
+
+      await testsService.deleteTest(templateId, 'default');
+      toast.success('Test deleted successfully');
+      
+      // Remove from list
       setTests(tests.filter(t => t.id !== test.id));
+      
+      // Refresh tests list from API
+      await fetchTests();
+    } catch (error) {
+      console.error('Error deleting test:', error);
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Failed to delete test. Please try again.';
+      toast.error(message);
     }
   };
 
-  const handleView = (test) => {
-    console.log('View test:', test);
+  const handleView = async (test) => {
+    setViewingTest(test);
+    setIsViewModalOpen(true);
+    setIsLoadingTestDetail(true);
+    setViewingTestDetail(null);
+
+    try {
+      // Get template_id from test (it's the id field)
+      const templateId = test.id;
+      if (!templateId) {
+        toast.error('Test ID not found');
+        setIsLoadingTestDetail(false);
+        return;
+      }
+
+      // Fetch test details from API
+      const testDetail = await testsService.getTestById(templateId, {
+        page: 1,
+        limit: 20,
+        sort_by: 'id',
+        sort_type: -1,
+        name: 'default',
+      });
+
+      setViewingTestDetail(testDetail);
+    } catch (error) {
+      console.error('Error fetching test details:', error);
+      const message = error?.response?.data?.message || error?.message || 'Failed to load test details.';
+      toast.error(message);
+    } finally {
+      setIsLoadingTestDetail(false);
+    }
+  };
+
+  const handleTestUpdated = async (updatedTest) => {
+    // Refresh the tests list from API
+    await fetchTests();
+    setIsUpdateModalOpen(false);
+    setEditingTest(null);
   };
 
   const handleRun = (test) => {
@@ -134,8 +213,8 @@ export default function Tests() {
         {/* Header */}
         <div className="sm:flex sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Tests</h1>
-            <p className="mt-2 text-sm text-gray-700">
+            <h1 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>Tests</h1>
+            <p className="mt-2 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
               Create and manage TOEIC practice tests for your students
             </p>
           </div>
@@ -143,7 +222,10 @@ export default function Tests() {
             <button
               type="button"
               onClick={() => setIsAddModalOpen(true)}
-              className="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto"
+              className="inline-flex items-center justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto"
+              style={{ backgroundColor: 'var(--color-primary)' }}
+              onMouseEnter={(e) => e.currentTarget.style.opacity = '0.5'}
+              onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
             >
               <PlusIcon className="-ml-1 mr-2 h-5 w-5" />
               Create Test
@@ -155,7 +237,7 @@ export default function Tests() {
         <TestsStatsCards tests={tests} />
 
         {/* Tests Table */}
-        <div className="bg-white shadow rounded-lg">
+        <div className="card-block">
           <TestsFilters
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
@@ -204,6 +286,30 @@ export default function Tests() {
         }}
         test={selectedTest}
         onSuccess={handleTestRunSuccess}
+      />
+
+      {/* View Test Modal */}
+      <ViewTestModal
+        isOpen={isViewModalOpen}
+        onClose={() => {
+          setIsViewModalOpen(false);
+          setViewingTest(null);
+          setViewingTestDetail(null);
+        }}
+        test={viewingTest}
+        testDetail={viewingTestDetail}
+        loading={isLoadingTestDetail}
+      />
+
+      {/* Update Test Modal */}
+      <UpdateTestModal
+        isOpen={isUpdateModalOpen}
+        onClose={() => {
+          setIsUpdateModalOpen(false);
+          setEditingTest(null);
+        }}
+        test={editingTest}
+        onSave={handleTestUpdated}
       />
     </DashboardLayout>
   );

@@ -23,15 +23,6 @@ export const VOCABULARY_COLUMNS = [
     )
   },
   {
-    key: 'definition',
-    label: 'Definition',
-    render: (value) => (
-      <div className="max-w-xs truncate" title={value}>
-        {value}
-      </div>
-    )
-  },
-  {
     key: 'partOfSpeech',
     label: 'Part of Speech',
     render: (value) => (
@@ -109,7 +100,7 @@ export const FILTER_FIELDS = [
     key: 'search',
     label: 'Search',
     type: 'text',
-    placeholder: 'Search words, definitions...'
+    placeholder: 'Search words...'
   },
   {
     key: 'difficulty',
