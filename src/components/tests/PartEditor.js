@@ -322,14 +322,10 @@ export default function PartEditor({ part, initialData, onSave, onClose, testTem
     return data.secure_url;
   };
 
-  const handleSave = async () => {
-    if (!testTemplateId) {
-      toast.error('Test template is not ready. Please close and reopen the modal.');
-      return;
-    }
-
+  const handleSave = () => {
+    // Only validate, don't call API
     if (!templateMeta?.name?.trim()) {
-      toast.error('Template name is required before saving.');
+      toast.error('Template name is required.');
       return;
     }
 
@@ -364,213 +360,12 @@ export default function PartEditor({ part, initialData, onSave, onClose, testTem
     setIsSaving(true);
 
     try {
-      // Merge existing parts data (from CreateTestModal state) with new part data
-      let existingPassages = [];
-      let existingQuestions = [];
-      
-      // First, try to use data from existingPartsData (from CreateTestModal state)
-      if (existingPartsData && typeof existingPartsData === 'object') {
-        Object.keys(existingPartsData).forEach((partId) => {
-          // Only include data from other parts (not the current part being saved)
-          if (parseInt(partId) !== part.id) {
-            const partData = existingPartsData[partId];
-            if (partData && partData.passages && Array.isArray(partData.passages)) {
-              partData.passages.forEach((passage) => {
-                existingPassages.push({
-                  ref: passage.ref || generatePassageRef(),
-                  type: passage.type || 'TEXT',
-                  content: passage.content || '',
-                  public_id: passage.public_id || passage.content || '',
-                  instructions: passage.instructions || '',
-                });
-                
-                // Add questions for this passage
-                if (passage.questions && Array.isArray(passage.questions)) {
-                  passage.questions.forEach((question) => {
-                    existingQuestions.push({
-                      content: question.question || question.content || '',
-                      difficulty: (question.difficulty || DEFAULT_DIFFICULTY).toUpperCase(),
-                      part: parseInt(partId),
-                      passage_ref: passage.ref || generatePassageRef(),
-                      answers: question.options?.map((option, optionIndex) => ({
-                        text: option.trim(),
-                        is_correct: question.correctAnswer === optionIndex,
-                        order: optionIndex + 1,
-                      })) || [],
-                    });
-                  });
-                }
-              });
-            }
-          }
-        });
-      }
-      
-      // Also try to fetch from API as backup (in case state is lost)
-      try {
-        const existingTestData = await testsService.getTestById(testTemplateId, {
-          page: 1,
-          limit: 20,
-          sort_by: 'id',
-          sort_type: -1,
-          name: 'default',
-        });
-
-        // Only use API data if we don't have state data, or to fill in missing parts
-        if (existingTestData?.parts && Array.isArray(existingTestData.parts)) {
-          existingTestData.parts.forEach((partData) => {
-            // Only include data from other parts (not the current part being saved)
-            if (partData.part !== part.id && partData.items) {
-              // Check if we already have this part in existingPassages
-              const hasPartData = existingPassages.some(p => {
-                // Try to match by checking if questions from this part exist
-                return existingQuestions.some(q => q.part === partData.part);
-              });
-              
-              // Only add if we don't have this part's data already
-              if (!hasPartData) {
-                partData.items.forEach((item) => {
-                  if (item.kind === 'passage' && item.passage) {
-                    const passageRef = item.passage.ref || `p-${item.passage.id}`;
-                    existingPassages.push({
-                      ref: passageRef,
-                      type: item.passage.type || 'TEXT',
-                      content: item.passage.content || item.passage.content_preview || '',
-                      public_id: item.passage.public_id || item.passage.content || '',
-                      instructions: item.passage.instructions || '',
-                    });
-                  }
-                  if (item.questions && Array.isArray(item.questions)) {
-                    item.questions.forEach((q) => {
-                      existingQuestions.push({
-                        content: q.content || '',
-                        difficulty: q.difficulty || 'EASY',
-                        part: partData.part,
-                        passage_ref: item.passage?.ref || `p-${item.passage?.id}`,
-                        answers: q.answers?.map((ans, idx) => ({
-                          text: ans.text || '',
-                          is_correct: ans.is_correct || false,
-                          order: idx + 1,
-                        })) || [],
-                      });
-                    });
-                  }
-                });
-              }
-            }
-          });
-        }
-      } catch (fetchError) {
-        console.warn('Could not fetch existing test data from API, using state data only:', fetchError);
-      }
-
-      const signature = await testsService.getCloudinarySignature(testTemplateId);
-
-      const passagesPayload = [...existingPassages];
-      const questionsPayload = [...existingQuestions];
-
-      // Add current part's passages and questions
-      for (const passage of passages) {
-        let passageContent = '';
-        let passagePublicId = '';
-
-        // Handle passage content based on type
-        if (passage.type === 'TEXT') {
-          passageContent = passage.content?.trim() || '';
-        } else if (passage.type === 'IMAGE') {
-          // Upload image file if exists
-          if (passage.imageFile) {
-            const uploadedUrl = await uploadFileToCloudinary(passage.imageFile, signature);
-            passageContent = uploadedUrl; // Điền link vào content
-            passagePublicId = uploadedUrl; // Cũng lưu vào public_id
-            if (passage.imagePreview && passage.imagePreview.startsWith('blob:')) {
-              URL.revokeObjectURL(passage.imagePreview);
-            }
-          } else if (passage.public_id) {
-            // Nếu đã có public_id (file đã upload trước đó), dùng nó cho cả content
-            passageContent = passage.public_id;
-            passagePublicId = passage.public_id;
-          } else if (passage.content) {
-            // Nếu đã có content (link), dùng nó
-            passageContent = passage.content;
-            passagePublicId = passage.content;
-          }
-        } else if (passage.type === 'AUDIO') {
-          // Upload audio file if exists
-          if (passage.audioFile) {
-            const uploadedUrl = await uploadFileToCloudinary(passage.audioFile, signature);
-            passageContent = uploadedUrl; // Điền link vào content
-            passagePublicId = uploadedUrl; // Cũng lưu vào public_id
-            if (passage.audioPreview && passage.audioPreview.startsWith('blob:')) {
-              URL.revokeObjectURL(passage.audioPreview);
-            }
-          } else if (passage.public_id) {
-            // Nếu đã có public_id (file đã upload trước đó), dùng nó cho cả content
-            passageContent = passage.public_id;
-            passagePublicId = passage.public_id;
-          } else if (passage.content) {
-            // Nếu đã có content (link), dùng nó
-            passageContent = passage.content;
-            passagePublicId = passage.content;
-          }
-        }
-
-        passagesPayload.push({
-          ref: passage.ref.trim(),
-          type: passage.type,
-          content: passageContent,
-          public_id: passagePublicId,
-          instructions: passage.instructions?.trim() || '',
-        });
-
-        // Process questions for this passage
-        for (const question of passage.questions || []) {
-
-          const answers = question.options.map((option, optionIndex) => ({
-            text: option.trim(),
-            is_correct: question.correctAnswer === optionIndex,
-            order: optionIndex + 1,
-          }));
-
-          questionsPayload.push({
-            content: question.question.trim(),
-            difficulty: (question.difficulty || DEFAULT_DIFFICULTY).toUpperCase(),
-            part: part.id,
-            passage_ref: passage.ref.trim(),
-            answers,
-          });
-        }
-      }
-
-      const templatePayload = {
-        name: templateMeta?.name?.trim() || 'Untitled Template',
-        description: templateMeta?.description || '',
-        status: templateMeta?.status || 'draft',
-        content: {
-          passages: passagesPayload,
-          questions: questionsPayload,
-        },
-      };
-
-      console.log('Saving part to API:', {
-        testTemplateId,
-        part: part.id,
-        passagesCount: passagesPayload.length,
-        questionsCount: questionsPayload.length,
-        payload: templatePayload
-      });
-
-      const response = await testsService.enqueueTemplateImport(testTemplateId, templatePayload);
-      
-      console.log('API response:', response);
-
+      // Prepare part data (keep files for later upload)
       const partData = {
         passages: passages.map(p => ({
           ...p,
-          imageFile: null,
-          audioFile: null,
-          imagePreview: p.imagePreview?.startsWith('blob:') ? '' : p.imagePreview,
-          audioPreview: p.audioPreview?.startsWith('blob:') ? '' : p.audioPreview,
+          // Keep imageFile and audioFile for later upload
+          // Keep imagePreview and audioPreview for display
           questions: p.questions || []
         })),
         config: partConfig,
@@ -578,14 +373,10 @@ export default function PartEditor({ part, initialData, onSave, onClose, testTem
       };
 
       onSave(partData);
-      toast.success(`${part.name} saved successfully to database!`);
+      toast.success(`${part.name} saved to draft!`);
     } catch (error) {
       console.error('Save part error:', error);
-      const message =
-        error?.response?.data?.message ||
-        error?.message ||
-        'Failed to save part. Please try again.';
-      toast.error(message);
+      toast.error('Failed to save part data.');
     } finally {
       setIsSaving(false);
     }

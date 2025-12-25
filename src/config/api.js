@@ -25,6 +25,7 @@ export const API_ENDPOINTS = {
     ENQUEUE_TEMPLATE: `${API_BASE_URL}api/v1/test`,
     GET_ALL: `${API_BASE_URL}api/v1/test/test_all`,
     GET_BY_ID: (templateId) => `${API_BASE_URL}api/v1/test/${templateId}`,
+    DELETE: (templateId) => `${API_BASE_URL}api/v1/test/${templateId}`,
     CREATE_TEST_RUN: `${API_BASE_URL}api/v1/test_run`,
   },
   ANALYTICS: `${API_BASE_URL}api/v1/analytics`,

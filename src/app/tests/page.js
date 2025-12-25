@@ -90,10 +90,33 @@ export default function Tests() {
     setIsUpdateModalOpen(true);
   };
 
-  const handleDelete = (test) => {
-    if (confirm(`Are you sure you want to delete "${test.title || test.name}"?`)) {
-      setTests(tests.filter(t => t.id !== test.id));
+  const handleDelete = async (test) => {
+    if (!confirm(`Are you sure you want to delete "${test.title || test.name}"?`)) {
+      return;
+    }
+
+    try {
+      const templateId = test.id;
+      if (!templateId) {
+        toast.error('Test ID not found. Cannot delete.');
+        return;
+      }
+
+      await testsService.deleteTest(templateId, 'default');
       toast.success('Test deleted successfully');
+      
+      // Remove from list
+      setTests(tests.filter(t => t.id !== test.id));
+      
+      // Refresh tests list from API
+      await fetchTests();
+    } catch (error) {
+      console.error('Error deleting test:', error);
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Failed to delete test. Please try again.';
+      toast.error(message);
     }
   };
 

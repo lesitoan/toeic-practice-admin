@@ -80,9 +80,9 @@ export default function CreateTestModal({ isOpen, onClose, onSave }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
-  const handleCreateTest = () => {
+  const handleCreateTest = async () => {
     if (!testName.trim()) {
-      alert('Please enter a test name');
+      toast.error('Please enter a test name');
       return;
     }
 
@@ -91,16 +91,154 @@ export default function CreateTestModal({ isOpen, onClose, onSave }) {
       return;
     }
 
-    const testData = {
-      name: testName,
-      description: testDescription,
-      status: testStatus,
-      templateId: testTemplateId,
-      parts: partsData
-    };
+    // Check if at least one part has been configured
+    const configuredParts = Object.keys(partsData).length;
+    if (configuredParts === 0) {
+      toast.warning('Please configure at least one part before creating the test.');
+      return;
+    }
 
-    onSave(testData);
-    handleClose();
+    try {
+      // Show loading
+      toast.info('Creating test... Please wait.');
+
+      // Get Cloudinary signature
+      const signature = await testsService.getCloudinarySignature(testTemplateId);
+
+      // Collect all passages and questions from all parts
+      const allPassages = [];
+      const allQuestions = [];
+
+      // Process each part
+      for (const [partId, partData] of Object.entries(partsData)) {
+        if (!partData || !partData.passages || !Array.isArray(partData.passages)) {
+          continue;
+        }
+
+        // Process passages for this part
+        for (const passage of partData.passages) {
+          let passageContent = '';
+          let passagePublicId = '';
+
+          // Handle passage content based on type
+          if (passage.type === 'TEXT') {
+            passageContent = passage.content?.trim() || '';
+          } else if (passage.type === 'IMAGE') {
+            // Upload image file if exists
+            if (passage.imageFile) {
+              try {
+                const uploadedUrl = await testsService.uploadFileToCloudinary(passage.imageFile, signature);
+                passageContent = uploadedUrl;
+                passagePublicId = uploadedUrl;
+                if (passage.imagePreview && passage.imagePreview.startsWith('blob:')) {
+                  URL.revokeObjectURL(passage.imagePreview);
+                }
+              } catch (uploadError) {
+                console.error('Error uploading image:', uploadError);
+                throw new Error(`Failed to upload image for passage "${passage.ref}": ${uploadError.message}`);
+              }
+            } else if (passage.public_id) {
+              passageContent = passage.public_id;
+              passagePublicId = passage.public_id;
+            } else if (passage.content) {
+              passageContent = passage.content;
+              passagePublicId = passage.content;
+            }
+          } else if (passage.type === 'AUDIO') {
+            // Upload audio file if exists
+            if (passage.audioFile) {
+              try {
+                const uploadedUrl = await testsService.uploadFileToCloudinary(passage.audioFile, signature);
+                passageContent = uploadedUrl;
+                passagePublicId = uploadedUrl;
+                if (passage.audioPreview && passage.audioPreview.startsWith('blob:')) {
+                  URL.revokeObjectURL(passage.audioPreview);
+                }
+              } catch (uploadError) {
+                console.error('Error uploading audio:', uploadError);
+                throw new Error(`Failed to upload audio for passage "${passage.ref}": ${uploadError.message}`);
+              }
+            } else if (passage.public_id) {
+              passageContent = passage.public_id;
+              passagePublicId = passage.public_id;
+            } else if (passage.content) {
+              passageContent = passage.content;
+              passagePublicId = passage.content;
+            }
+          }
+
+          allPassages.push({
+            ref: passage.ref?.trim() || `p-${Date.now()}-${Math.random()}`,
+            type: passage.type || 'TEXT',
+            content: passageContent,
+            public_id: passagePublicId,
+            instructions: passage.instructions?.trim() || '',
+          });
+
+          // Process questions for this passage
+          if (passage.questions && Array.isArray(passage.questions)) {
+            for (const question of passage.questions) {
+              const answers = question.options?.map((option, optionIndex) => ({
+                text: option.trim(),
+                is_correct: question.correctAnswer === optionIndex,
+                order: optionIndex + 1,
+              })) || [];
+
+              allQuestions.push({
+                content: question.question?.trim() || '',
+                difficulty: (question.difficulty || 'EASY').toUpperCase(),
+                part: parseInt(partId),
+                passage_ref: passage.ref?.trim() || `p-${Date.now()}-${Math.random()}`,
+                answers,
+              });
+            }
+          }
+        }
+      }
+
+      // Create final payload
+      const templatePayload = {
+        name: testName.trim(),
+        description: testDescription.trim(),
+        status: testStatus,
+        content: {
+          passages: allPassages,
+          questions: allQuestions,
+        },
+      };
+
+      console.log('Creating test with all parts:', {
+        testTemplateId,
+        partsCount: configuredParts,
+        passagesCount: allPassages.length,
+        questionsCount: allQuestions.length,
+      });
+
+      // Send API request once with all data
+      const response = await testsService.enqueueTemplateImport(testTemplateId, templatePayload);
+      
+      console.log('Test created successfully:', response);
+
+      toast.success(`Test "${testName}" created successfully!`);
+      
+      const testData = {
+        name: testName,
+        description: testDescription,
+        status: testStatus,
+        templateId: testTemplateId,
+        parts: partsData
+      };
+
+      onSave(testData);
+      handleClose();
+    } catch (error) {
+      console.error('Error creating test:', error);
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Failed to create test. Please try again.';
+      toast.error(message);
+    }
   };
 
   if (!isOpen) return null;
