@@ -154,14 +154,11 @@ export default function Tests() {
     }
   };
 
-  const handleTestUpdated = (updatedTest) => {
-    // Update the test in the list
-    setTests(tests.map(t => t.id === updatedTest.id ? updatedTest : t));
+  const handleTestUpdated = async (updatedTest) => {
+    // Refresh the tests list from API
+    await fetchTests();
     setIsUpdateModalOpen(false);
     setEditingTest(null);
-    toast.success('Test updated successfully');
-    // Optionally refresh the tests list
-    fetchTests();
   };
 
   const handleRun = (test) => {
